@@ -1,0 +1,10 @@
+services:
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=DealSniper'
+      - 'MYSQL_PASSWORD=Deal'
+      - 'MYSQL_ROOT_PASSWORD=DealWithRoot'
+      - 'MYSQL_USER=Sniper'
+    ports:
+      - '3306'
