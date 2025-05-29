@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
+import pl.dealniper.core.exception.UrlTimeoutException;
 import pl.dealniper.core.scraper.Scraper;
 import pl.dealniper.core.scraper.model.CarDeal;
 
@@ -14,7 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class OtomotoScraper implements Scraper {
+public class OtomotoScraper implements Scraper<CarDeal> {
+
+    private static final int LOCATION_WITH_STATE = 2;
+    private static final int LOCATION = 1;
+    private static final int LOCATION_STATE = 2;
 
     @Override
     public boolean supports(String platformUrl) {
@@ -26,42 +31,44 @@ public class OtomotoScraper implements Scraper {
         List<CarDeal> carDeals = new ArrayList<>();
         int servicePage = 1;
 
-        while (servicePage <=3) {
+        while (servicePage <= OtomotoSelector.MAX_OFFER_PAGE) {
             try {
                 String paginatedUrl = addPageParam(platformUrl, servicePage);
                 Document doc = Jsoup.connect(paginatedUrl)
-                        .userAgent("Mozilla/5.0")
-                        .timeout(10000)
+                        .userAgent(OtomotoSelector.USER_AGENT)
+                        .header("Accept-Language", OtomotoSelector.LANGUAGE_HEADER)
+                        .header("Connection", "keep-alive")
+                        .timeout(OtomotoSelector.REQUEST_TIMEOUT)
                         .get();
-                Elements listings = doc.select("article[data-id]");
+                Elements listings = doc.select(OtomotoSelector.OFFER_ID);
 
                 if (listings.isEmpty()) {
                     break;
                 }
 
                 for (Element element : listings) {
-                    String title = element.select("h2").text();
+                    String title = element.select(OtomotoSelector.OFFER_TITLE).text();
 
-                    String url = element.select("a").attr("href");
+                    String url = element.select(OtomotoSelector.OFFER_LINK).attr(OtomotoSelector.OFFER_URL);
 
-                    String locationTag = element.select("p[class*=ooa-oj1jk2]").text();
+                    String locationTag = element.select(OtomotoSelector.OFFER_LOCATION).text();
                     String[] words = locationTag.split(" ");
-                    String location = locationTag.length() >= 2 ? words[0] + " " + words[1] : locationTag;
+                    String location = locationTag.length() >= LOCATION_WITH_STATE ?
+                            words[LOCATION] + " " + words[LOCATION_STATE] : locationTag;
 
-                    String priceStr = element.select("h3[class*=ooa-1n2paoq]").text().replace(" ", "");
+                    String priceStr = element.select(OtomotoSelector.OFFER_PRICE).text().replace(" ", "");
                     BigDecimal price = new BigDecimal(priceStr.isEmpty() ? "0" : priceStr);
 
-                    String mileage = element.select("dd[data-parameter=mileage]").text();
+                    String mileage = element.select(OtomotoSelector.OFFER_MILEAGE).text();
 
-                    String productionYear = element.select("dd[data-parameter=year]").text();
+                    String productionYear = element.select(OtomotoSelector.OFFER_PRODUCTION_YEAR).text();
                     int year = Integer.parseInt(productionYear);
 
                     carDeals.add(new CarDeal(title, price, location, mileage, year, url));
                 }
                 servicePage++;
             } catch (IOException e) {
-                e.printStackTrace();
-                break;
+                throw new UrlTimeoutException("Request timeout exceeded");
             }
         }
         return carDeals;
