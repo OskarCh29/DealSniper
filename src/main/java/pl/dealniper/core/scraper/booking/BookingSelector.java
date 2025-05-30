@@ -12,7 +12,7 @@ public final class BookingSelector extends Selector {
 
     public static final String OFFER_TITLE = "div[data-testid=title]";
 
-    public static final String OFFER_ROOM_TYPE = "h4[class*=f254df5361]";
+    public static final String OFFER_ROOM_TYPE = "div[data-testid=property-card] h4";
 
     public static final String OFFER_PRICE = "span[data-testid=price-and-discounted-price]";
 

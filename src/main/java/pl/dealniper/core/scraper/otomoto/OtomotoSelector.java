@@ -10,11 +10,11 @@ public final class OtomotoSelector extends Selector {
 
     public static final String OFFER_ID = "article[data-id]";
 
-    public static final String OFFER_TITLE = "h2";
+    public static final String OFFER_TITLE = "article[data-id] h2";
 
-    public static final String OFFER_LOCATION = "p[class*=ooa-oj1jk2]";
+    public static final String OFFER_LOCATION = "article[data-id] dl dd p";
 
-    public static final String OFFER_PRICE = "h3[class*=ooa-1n2paoq]";
+    public static final String OFFER_PRICE = "article[data-id] h3";
 
     public static final String OFFER_MILEAGE = "dd[data-parameter=mileage]";
 

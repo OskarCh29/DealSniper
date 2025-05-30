@@ -1,19 +1,14 @@
 package pl.dealniper.core.scraper.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 
+
 @Getter
 @Setter
-@AllArgsConstructor
-public class CarDeal {
-
-    private String title;
-
-    private BigDecimal price;
+public class CarDeal extends BaseDeal {
 
     private String location;
 
@@ -21,17 +16,22 @@ public class CarDeal {
 
     private int year;
 
-    private String offerUrl;
+    public CarDeal(String title, BigDecimal price, String offerUrl, String location, String mileage, int year) {
+        super(title, price, offerUrl);
+        this.location = location;
+        this.mileage = mileage;
+        this.year = year;
+    }
 
     @Override
     public String toString() {
         return "Offer{" +
-                "title='" + title + '\'' +
-                ", price=" + price +
+                "title='" + this.getTitle() + '\'' +
+                ", price=" + this.getPrice() +
                 ", location='" + location + '\'' +
                 ", mileage='" + mileage + '\'' +
                 ", year='" + year + '\'' +
-                ", offerUrl='" + offerUrl + '\'' +
+                ", offerUrl='" + this.getOfferUrl() + '\'' +
                 '}';
     }
 }

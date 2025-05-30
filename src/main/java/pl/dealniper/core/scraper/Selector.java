@@ -9,7 +9,7 @@ public abstract class Selector {
 
     public static final int REQUEST_TIMEOUT = 10000;
 
-    public static final int MAX_OFFER_PAGE = 3;
+    public static final int MAX_OFFER_RESULT = 10;
 
     public static final String OFFER_LINK = "a";
 

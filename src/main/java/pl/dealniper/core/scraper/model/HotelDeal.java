@@ -1,6 +1,5 @@
 package pl.dealniper.core.scraper.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,27 +7,26 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class HotelDeal {
-
-    private String title;
+public class HotelDeal extends BaseDeal {
 
     private String roomType;
 
-    private BigDecimal price;
-
     private double rate;
 
-    private String offerUrl;
+    public HotelDeal(String title, BigDecimal price, String offerUrl, String roomType, double rate) {
+        super(title, price, offerUrl);
+        this.roomType = roomType;
+        this.rate = rate;
+    }
 
     @Override
     public String toString() {
         return "HotelDeal{" +
-                "title='" + title + '\'' +
+                "title='" + this.getTitle() + '\'' +
                 ", roomType='" + roomType + '\'' +
-                ", price=" + price +
+                ", price=" + this.getPrice() +
                 ", rate=" + rate +
-                ", offerUrl='" + offerUrl + '\'' +
+                ", offerUrl='" + this.getOfferUrl() + '\'' +
                 '}';
     }
 }
