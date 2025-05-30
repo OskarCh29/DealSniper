@@ -1,7 +1,5 @@
 package pl.dealniper.core.scraper.booking;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -28,28 +26,22 @@ public class BookingScrapper implements Scraper<HotelDeal> {
         List<HotelDeal> hotelDeals = new ArrayList<>();
 
         try {
-            Elements listings = getUrlElements(platformUrl,BookingSelector.USER_AGENT, BookingSelector.LANGUAGE_HEADER,
+            Elements listings = getUrlElements(platformUrl, BookingSelector.USER_AGENT, BookingSelector.LANGUAGE_HEADER,
                     BookingSelector.REQUEST_TIMEOUT, BookingSelector.OFFER_ID);
 
             for (Element element : listings) {
                 if (hotelDeals.size() >= BookingSelector.MAX_OFFER_RESULT) {
                     break;
                 }
-                Element titleElement = element.selectFirst(BookingSelector.OFFER_TITLE);
-                String title = titleElement != null ? titleElement.text() : "Property name missing";
+                String title = element.select(BookingSelector.OFFER_TITLE).text();
 
-                Element roomElement = element.selectFirst(BookingSelector.OFFER_ROOM_TYPE);
-                String roomType = roomElement != null ? roomElement.text() : "Room type missing";
+                String roomType = element.select(BookingSelector.OFFER_ROOM_TYPE).text();
 
-                Element priceElement = element.selectFirst(BookingSelector.OFFER_PRICE);
-                String priceWithCurr = priceElement != null ? priceElement.text() : "Price missing";
+                String priceWithCurr = element.select(BookingSelector.OFFER_PRICE).text();
                 int convPrice = Integer.parseInt(priceWithCurr.split(" ")[PRICE_WITHOUT_SYMBOL]);
                 BigDecimal hotelPrice = BigDecimal.valueOf(convPrice);
 
-
-                Element rateElement = element.selectFirst(BookingSelector.OFFER_SCORE);
-                String score = rateElement != null ?
-                        rateElement.text().replace(",", ".") : "Rate missing";
+                String score = element.select(BookingSelector.OFFER_SCORE).text().replace(",", ".");
                 double rate = Double.parseDouble(score);
 
                 String url = element.select(BookingSelector.OFFER_LINK).attr(BookingSelector.OFFER_URL);
