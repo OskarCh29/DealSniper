@@ -1,13 +1,11 @@
-package pl.dealniper.core.scraper.otomoto;
+package pl.dealsniper.core.scraper.otomoto;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
-import pl.dealniper.core.exception.UrlTimeoutException;
-import pl.dealniper.core.scraper.Scraper;
-import pl.dealniper.core.scraper.model.CarDeal;
+import pl.dealsniper.core.exception.UrlTimeoutException;
+import pl.dealsniper.core.scraper.Scraper;
+import pl.dealsniper.core.model.CarDeal;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,17 +20,11 @@ public class OtomotoScraper implements Scraper<CarDeal> {
     private static final int LOCATION_STATE = 1;
 
     @Override
-    public boolean supports(String platformUrl) {
-        return platformUrl.toLowerCase().contains("otomoto");
-    }
-
-    @Override
     public List<CarDeal> getDeals(String platformUrl) {
         List<CarDeal> carDeals = new ArrayList<>();
 
         try {
-            Elements listings = getUrlElements(platformUrl,OtomotoSelector.USER_AGENT,OtomotoSelector.LANGUAGE_HEADER,
-                    OtomotoSelector.REQUEST_TIMEOUT, OtomotoSelector.OFFER_ID);
+            Elements listings = getUrlElements(platformUrl, OtomotoSelector.OFFER_ID);
 
             for (Element element : listings) {
                 if (carDeals.size() >= OtomotoSelector.MAX_OFFER_RESULT) {
@@ -44,8 +36,8 @@ public class OtomotoScraper implements Scraper<CarDeal> {
 
                 String locationTag = element.select(OtomotoSelector.OFFER_LOCATION).text();
                 String[] words = locationTag.split(" ");
-                String location = locationTag.length() >= LOCATION_WITH_STATE ?
-                        words[LOCATION] + " " + words[LOCATION_STATE] : locationTag;
+                String location = locationTag.length() >= LOCATION_WITH_STATE
+                        ? words[LOCATION] + " " + words[LOCATION_STATE] : locationTag;
 
                 String priceStr = element.select(OtomotoSelector.OFFER_PRICE).text().replace(" ", "");
                 BigDecimal price = new BigDecimal(priceStr.isEmpty() ? "0" : priceStr);

@@ -1,0 +1,10 @@
+CREATE TABLE car_deals (
+id BIGSERIAL,
+title VARCHAR(255) NOT NULL,
+price DECIMAL(15,2) NOT NULL,
+offer_url VARCHAR(500) NOT NULL,
+location VARCHAR(255) NOT NULL,
+mileage VARCHAR(10),
+year INT,
+PRIMARY KEY(id)
+);

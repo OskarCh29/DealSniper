@@ -1,4 +1,4 @@
-package pl.dealniper.core;
+package pl.dealsniper.core;
 
 import org.springframework.boot.SpringApplication;
 

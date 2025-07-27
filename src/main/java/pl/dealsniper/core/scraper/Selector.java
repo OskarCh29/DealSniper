@@ -1,4 +1,4 @@
-package pl.dealniper.core.scraper;
+package pl.dealsniper.core.scraper;
 
 public abstract class Selector {
 

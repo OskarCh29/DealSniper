@@ -1,6 +1,6 @@
-package pl.dealniper.core.scraper.otomoto;
+package pl.dealsniper.core.scraper.otomoto;
 
-import pl.dealniper.core.scraper.Selector;
+import pl.dealsniper.core.scraper.Selector;
 
 public final class OtomotoSelector extends Selector {
 

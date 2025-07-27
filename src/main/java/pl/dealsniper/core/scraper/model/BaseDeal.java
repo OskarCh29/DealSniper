@@ -1,4 +1,4 @@
-package pl.dealniper.core.scraper.model;
+package pl.dealsniper.core.scraper.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
