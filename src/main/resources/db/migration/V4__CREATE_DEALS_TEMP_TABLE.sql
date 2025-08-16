@@ -1,0 +1,1 @@
+CREATE TABLE car_deals_tmp AS SELECT * FROM car_deals WHERE 1=0;
