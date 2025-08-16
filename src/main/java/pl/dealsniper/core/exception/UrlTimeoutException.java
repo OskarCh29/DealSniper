@@ -1,4 +1,4 @@
-package pl.dealniper.core.exception;
+package pl.dealsniper.core.exception;
 
 public class UrlTimeoutException extends RuntimeException {
 

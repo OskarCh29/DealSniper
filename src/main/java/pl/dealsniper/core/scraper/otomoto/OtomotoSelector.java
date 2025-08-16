@@ -1,6 +1,6 @@
-package pl.dealniper.core.scraper.otomoto;
+package pl.dealsniper.core.scraper.otomoto;
 
-import pl.dealniper.core.scraper.Selector;
+import pl.dealsniper.core.scraper.Selector;
 
 public final class OtomotoSelector extends Selector {
 
@@ -15,6 +15,8 @@ public final class OtomotoSelector extends Selector {
     public static final String OFFER_LOCATION = "article[data-id] dl dd p";
 
     public static final String OFFER_PRICE = "article[data-id] h3";
+
+    public static final String OFFER_CURRENCY = "article[data-id] h3 + p";
 
     public static final String OFFER_MILEAGE = "dd[data-parameter=mileage]";
 

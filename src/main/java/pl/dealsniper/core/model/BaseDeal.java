@@ -1,17 +1,23 @@
-package pl.dealniper.core.scraper.model;
+package pl.dealsniper.core.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@SuperBuilder
 public abstract class BaseDeal {
 
+    private Long id;
+
     private String title;
+
     private BigDecimal price;
+
+    private String currency;
+
     private String offerUrl;
 }

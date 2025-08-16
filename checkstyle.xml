@@ -49,13 +49,6 @@
         <property name="fileNamePattern" value="module\-info\.java$"/>
     </module>
 
-    <!-- https://checkstyle.org/filters/suppressionfilter.html -->
-    <module name="SuppressionFilter">
-        <property name="file" value="${org.checkstyle.sun.suppressionfilter.config}"
-                  default="checkstyle-suppressions.xml"/>
-        <property name="optional" value="true"/>
-    </module>
-
     <!-- Checks whether files end with a new line.                        -->
     <!-- See https://checkstyle.org/checks/misc/newlineatendoffile.html -->
     <module name="NewlineAtEndOfFile"/>
