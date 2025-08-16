@@ -1,13 +1,14 @@
 package pl.dealsniper.core.persister;
 
-import lombok.RequiredArgsConstructor;
-import org.jooq.DSLContext;
-import org.springframework.stereotype.Repository;
-import pl.dealsniper.core.model.CarDeal;
+import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
 
 import java.util.List;
 
-import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
+import org.jooq.DSLContext;
+import org.springframework.stereotype.Repository;
+
+import lombok.RequiredArgsConstructor;
+import pl.dealsniper.core.model.CarDeal;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,19 +27,13 @@ public class CarDealPersister implements DealPersister<CarDeal> {
                 .set(CAR_DEALS.YEAR, deal.getYear())
                 .onDuplicateKeyIgnore()
                 .execute();
-
     }
 
     @Override
-    public void saveAll(List<CarDeal> deals) {
-
-    }
+    public void saveAll(List<CarDeal> deals) {}
 
     @Override
     public boolean existsByUrl(String offerUrl) {
-        return dsl.fetchExists(
-                dsl.selectFrom(CAR_DEALS)
-                        .where(CAR_DEALS.OFFER_URL.eq(offerUrl))
-        );
+        return dsl.fetchExists(dsl.selectFrom(CAR_DEALS).where(CAR_DEALS.OFFER_URL.eq(offerUrl)));
     }
 }
