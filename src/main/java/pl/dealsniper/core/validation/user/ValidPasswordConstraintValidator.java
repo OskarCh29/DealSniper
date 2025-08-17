@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ValidPasswordConstraintValidator implements ConstraintValidator<ValidPassword, PasswordRequest> {
+public class ValidPasswordConstraintValidator implements ConstraintValidator<ValidPassword, String> {
 
     private Integer minLength;
     private boolean oneCapital;
@@ -17,8 +17,7 @@ public class ValidPasswordConstraintValidator implements ConstraintValidator<Val
     private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile(".*[^a-zA-Z0-9].*");
 
     @Override
-    public boolean isValid(PasswordRequest passwordRequest, ConstraintValidatorContext constraintValidatorContext) {
-        String password = passwordRequest.password();
+    public boolean isValid(String password, ConstraintValidatorContext constraintValidatorContext) {
         if (password == null) {
             return false;
         }

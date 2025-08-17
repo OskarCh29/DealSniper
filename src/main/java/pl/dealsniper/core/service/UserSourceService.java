@@ -30,6 +30,13 @@ public class UserSourceService {
         return sourceRepository.save(source);
     }
 
+    @Transactional(readOnly = true)
+    public Source getSourceByUserIdAndURL(UUID userId, String filterUrl) {
+        return sourceRepository
+                .findByUserIdAndFilterUrl(userId, filterUrl)
+                .orElseThrow(() -> new RecordNotFoundException("Provided URL is not connected to given user"));
+    }
+
     private void ensureUserActiveAndExists(UUID userId) {
         User user = userRepository
                 .findById(userId)

@@ -6,6 +6,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import pl.dealsniper.core.dto.request.UserRequest;
+
 @Service
 public class CryptoService {
 
@@ -15,7 +17,14 @@ public class CryptoService {
     @Value("${security.saltSuffix}")
     private String saltSuffix;
 
-    public String encryptPassword(String password) {
+    public UserRequest hashUserRequestPassword(UserRequest userRequest) {
+        return UserRequest.builder()
+                .email(userRequest.email())
+                .password(encryptPassword(userRequest.password()))
+                .build();
+    }
+
+    private String encryptPassword(String password) {
         String saltedPassword = saltPrefix + password + saltSuffix;
         return DigestUtils.sha256Hex(saltedPassword);
     }

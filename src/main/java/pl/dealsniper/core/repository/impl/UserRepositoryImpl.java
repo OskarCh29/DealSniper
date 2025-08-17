@@ -32,8 +32,13 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User save(User user) {
         UsersRecord record = userMapper.toJooqUserRecord(user);
-
-        UsersRecord savedRecord = dsl.insertInto(USERS).set(record).returning().fetchOne();
+        record.setId(UUID.randomUUID());
+        UsersRecord savedRecord = dsl.insertInto(USERS)
+                .set(USERS.ID, record.getId())
+                .set(USERS.EMAIL, record.getEmail())
+                .set(USERS.PASSWORD, record.getPassword())
+                .returning()
+                .fetchOne();
 
         if (savedRecord == null) {
             throw new InsertFailedException("USER", user.getId());

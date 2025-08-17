@@ -8,7 +8,7 @@ location VARCHAR(255) NOT NULL,
 mileage VARCHAR(10),
 "year" INT NOT NULL,
 active BOOLEAN DEFAULT TRUE,
-source_id UUID NOT NULL,
+source_id BIGINT NOT NULL,
 CONSTRAINT fk_source_id FOREIGN KEY (source_id) REFERENCES sources(id),
 UNIQUE (offer_url, source_id)
 );

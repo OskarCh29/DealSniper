@@ -9,7 +9,7 @@ import pl.dealsniper.core.model.BaseDeal;
 
 public interface Scraper<T extends BaseDeal> {
 
-    List<T> getDeals(String platformUrl, UUID sourceId);
+    List<T> getDeals(String platformUrl, Long sourceId);
 
     T parseElementToDeal(Element element);
 }

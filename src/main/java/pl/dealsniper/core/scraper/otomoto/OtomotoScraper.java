@@ -22,7 +22,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
     private static final int OFFERS_PER_PAGE = 32;
 
     @Override
-    public List<CarDeal> getDeals(String platformUrl, UUID sourceId) {
+    public List<CarDeal> getDeals(String platformUrl, Long sourceId) {
         List<CarDeal> carDeals = new ArrayList<>();
 
         int page = 1;

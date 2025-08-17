@@ -10,7 +10,7 @@ public interface SourceRepository {
 
     Source save(Source source);
 
-    Optional<Source> findByUserIdAndFilterUrl(UUID id, String filterUrl);
+    Optional<Source> findByUserIdAndFilterUrl(UUID userId, String filterUrl);
 
     List<Source> findByUserId(UUID userId);
 

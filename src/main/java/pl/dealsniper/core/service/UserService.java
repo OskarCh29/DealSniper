@@ -48,7 +48,7 @@ public class UserService {
         }
     }
 
-    private void ensureUserActive(UUID userId) {
+    public void ensureUserActive(UUID userId) {
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new RecordNotFoundException("User with provided Id not found"));

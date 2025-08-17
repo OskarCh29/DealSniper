@@ -1,7 +1,6 @@
 package pl.dealsniper.core.model;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +21,5 @@ public abstract class BaseDeal {
 
     private String offerUrl;
 
-    private UUID sourceId;
+    private Long sourceId;
 }

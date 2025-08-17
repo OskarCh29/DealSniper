@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class Source {
 
-    private UUID id;
+    private Long id;
 
     private UUID userId;
 

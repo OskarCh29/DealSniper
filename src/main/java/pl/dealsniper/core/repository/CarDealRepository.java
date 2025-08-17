@@ -1,7 +1,6 @@
 package pl.dealsniper.core.repository;
 
 import java.util.List;
-import java.util.UUID;
 
 import pl.dealsniper.core.model.BaseDeal;
 
@@ -14,7 +13,7 @@ public interface CarDealRepository<T extends BaseDeal> {
 
     void deleteInactiveOffers();
 
-    boolean existsByOfferUrlAndSourceId(String offerUrl, UUID sourceId);
+    boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId);
 
     List<T> findAll();
 }

@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
-import pl.dealsniper.core.dto.request.UserRequest;
 
 class ValidPasswordTest {
 
@@ -65,11 +64,7 @@ class ValidPasswordTest {
     void testValidPassword(String password, boolean expectedValidation) {
         ValidPasswordConstraintValidator validator = new ValidPasswordConstraintValidator();
         validator.initialize(annotation);
-        UserRequest userRequest = UserRequest.builder()
-                .email("testUser@example.com")
-                .password(password)
-                .build();
-        boolean valid = validator.isValid(userRequest, context);
+        boolean valid = validator.isValid(password, context);
         Assertions.assertEquals(expectedValidation, valid);
     }
 

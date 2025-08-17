@@ -50,7 +50,7 @@ public abstract class AbstractScraper<T extends BaseDeal> implements Scraper<T> 
     }
 
     @Override
-    public abstract List<T> getDeals(String platformUrl, UUID sourceId);
+    public abstract List<T> getDeals(String platformUrl, Long sourceId);
 
     @Override
     public abstract T parseElementToDeal(Element element);

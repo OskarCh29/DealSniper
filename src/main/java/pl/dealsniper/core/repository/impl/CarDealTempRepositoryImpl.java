@@ -34,9 +34,18 @@ public class CarDealTempRepositoryImpl implements CarDealTempRepository<CarDeal>
         }
 
         List<Query> inserts = deals.stream()
-                .map(deal -> dsl.insertInto(CAR_DEALS_TMP)
-                        .set(mapper.toJooqCarDealRecord(deal))
-                        .onDuplicateKeyIgnore())
+                .map(deal -> {
+                    return dsl.insertInto(CAR_DEALS_TMP)
+                            .set(CAR_DEALS_TMP.TITLE, deal.getTitle())
+                            .set(CAR_DEALS_TMP.PRICE, deal.getPrice())
+                            .set(CAR_DEALS_TMP.CURRENCY, deal.getCurrency())
+                            .set(CAR_DEALS_TMP.OFFER_URL, deal.getOfferUrl())
+                            .set(CAR_DEALS_TMP.LOCATION, deal.getLocation())
+                            .set(CAR_DEALS_TMP.MILEAGE, deal.getMileage())
+                            .set(CAR_DEALS_TMP.YEAR, deal.getYear())
+                            .set(CAR_DEALS_TMP.SOURCE_ID, deal.getSourceId())
+                            .onDuplicateKeyIgnore();
+                })
                 .collect(Collectors.toList());
 
         dsl.batch(inserts).execute();

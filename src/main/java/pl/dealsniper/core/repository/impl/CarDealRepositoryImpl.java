@@ -4,7 +4,6 @@ import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
 import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -90,7 +89,7 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
     }
 
     @Override
-    public boolean existsByOfferUrlAndSourceId(String offerUrl, UUID sourceId) {
+    public boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId) {
         return dsl.fetchExists(dsl.selectFrom(CAR_DEALS)
                 .where(CAR_DEALS.OFFER_URL.eq(offerUrl))
                 .and(CAR_DEALS.SOURCE_ID.eq(sourceId)));

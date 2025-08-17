@@ -2,6 +2,9 @@ package pl.dealsniper.core.dto.response;
 
 import java.math.BigDecimal;
 
+import lombok.Builder;
+
+@Builder
 public record CarDealResponse(
         String title,
         BigDecimal price,
