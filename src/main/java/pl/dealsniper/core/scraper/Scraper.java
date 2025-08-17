@@ -1,7 +1,6 @@
 package pl.dealsniper.core.scraper;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.jsoup.nodes.Element;
 

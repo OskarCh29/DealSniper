@@ -6,4 +6,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record UserResponse(UUID id, String email, LocalDateTime createdAt) {}
+public record UserResponse(UUID id, String email, boolean userStatus, LocalDateTime createdAt) {}

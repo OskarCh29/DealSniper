@@ -3,7 +3,6 @@ package pl.dealsniper.core.scraper;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.jsoup.Jsoup;

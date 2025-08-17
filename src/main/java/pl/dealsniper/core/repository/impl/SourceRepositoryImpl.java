@@ -1,7 +1,6 @@
 package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.tables.Sources.SOURCES;
-import static com.dealsniper.jooq.tables.Users.USERS;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,7 @@ public class SourceRepositoryImpl implements SourceRepository {
         SourcesRecord record = mapper.toJooqSourceRecord(source);
 
         SourcesRecord inserted = dsl.insertInto(SOURCES)
-                .set(SOURCES.FILTERED_URL,record.getFilteredUrl())
+                .set(SOURCES.FILTERED_URL, record.getFilteredUrl())
                 .set(SOURCES.USER_ID, record.getUserId())
                 .returning()
                 .fetchOne();
