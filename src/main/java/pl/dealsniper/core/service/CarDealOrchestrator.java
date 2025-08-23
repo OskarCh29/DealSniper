@@ -1,16 +1,18 @@
 package pl.dealsniper.core.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.dealsniper.core.model.CarDeal;
+import pl.dealsniper.core.model.Source;
+import pl.dealsniper.core.model.User;
+import pl.dealsniper.core.scraper.otomoto.OtomotoScraper;
+
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-import pl.dealsniper.core.model.CarDeal;
-import pl.dealsniper.core.model.Source;
-import pl.dealsniper.core.scraper.otomoto.OtomotoScraper;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CarDealOrchestrator {
@@ -19,6 +21,7 @@ public class CarDealOrchestrator {
     private final UserSourceService userSourceService;
     private final CarDealService carDealService;
     private final OtomotoScraper otomotoScraper;
+    private final EmailService emailService;
 
     public void processSingleSource(UUID userId, String scrapedURL) {
         userService.ensureUserActive(userId);
@@ -30,8 +33,11 @@ public class CarDealOrchestrator {
     }
 
     @Transactional
-    public void persistScrapedOffers(UUID userId, List<CarDeal> scrappedOffers) {
+    private void persistScrapedOffers(UUID userId, List<CarDeal> scrappedOffers) {
+        User user = userService.getUserById(userId);
         List<CarDeal> newOffers = carDealService.loadTempTableAndFindNewDeals(scrappedOffers, userId);
+        log.info("Preparing new offers to send...");
+        emailService.sendOffersToUser(user.getEmail(), newOffers);
         carDealService.mergeTempTableAndDeleteInactive();
     }
 }
