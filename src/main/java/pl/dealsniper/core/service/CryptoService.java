@@ -16,10 +16,10 @@ public class CryptoService {
     @Value("${security.saltSuffix}")
     private String saltSuffix;
 
-    public UserRequest hashUserRequestPassword(UserRequest userRequest) {
+    public UserRequest prepareHashedUserRequest(String userEmail, String userPassword) {
         return UserRequest.builder()
-                .email(userRequest.email())
-                .password(encryptPassword(userRequest.password()))
+                .email(userEmail)
+                .password(encryptPassword(userPassword))
                 .build();
     }
 

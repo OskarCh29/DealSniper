@@ -41,7 +41,7 @@ public class UserService {
         userRepository.deactivateUserAccount(user.getId());
     }
 
-    private void ensureEmailAvailable(String email) {
+    public void ensureEmailAvailable(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new ResourceUsedException("Email already in use");
         }

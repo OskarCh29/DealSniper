@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Car Offers</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color:#f4f4f9; margin:0; padding:0;">
+<div style="max-width:700px; margin:30px auto; background-color:#ffffff; padding:30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+
+    <h2 style="color:#1a73e8; text-align:center;">New car offers just for you!</h2>
+    <p style="text-align:center; color:#555; font-size:16px;">Here are the latest cars according to your saved search filters:</p>
+
+    <table style="width:100%; border-collapse:collapse; margin-top:20px;">
+        <thead>
+        <tr style="background-color:#1a73e8; color:white; text-align:left;">
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Title</th>
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Price</th>
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Currency</th>
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Location</th>
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Mileage</th>
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Year</th>
+            <th style="padding:10px; border-bottom:2px solid #ddd;">Offer link</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="deal : ${deals}" style="border-bottom:1px solid #eee;">
+            <td style="padding:8px;" th:text="${deal.title}"></td>
+            <td style="padding:8px;" th:text="${deal.price}"></td>
+            <td style="padding:8px;" th:text="${deal.currency}"></td>
+            <td style="padding:8px;" th:text="${deal.location}"></td>
+            <td style="padding:8px;" th:text="${deal.mileage}"></td>
+            <td style="padding:8px;" th:text="${deal.year}"></td>
+            <td style="padding:8px;">
+                <a th:href="${deal.offerUrl}" style="color:#ffffff; background-color:#28a745; padding:5px 10px; text-decoration:none; border-radius:5px;">View</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p style="text-align:center; color:#999; font-size:12px; margin-top:20px;">
+        You are receiving this email because you subscribed to car alerts. If you don't want to receive more offers, you can
+        <a th:href="@{'/unsubscribe'(sourceId=${sourceId})}"
+           style="color:#1a73e8; text-decoration:none;">unsubscribe</a> from service
+    </p>
+
+</div>
+</body>
+</html>
