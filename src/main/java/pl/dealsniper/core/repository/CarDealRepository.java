@@ -1,7 +1,7 @@
+/* (C) 2025 */
 package pl.dealsniper.core.repository;
 
 import java.util.List;
-
 import pl.dealsniper.core.model.BaseDeal;
 
 public interface CarDealRepository<T extends BaseDeal> {

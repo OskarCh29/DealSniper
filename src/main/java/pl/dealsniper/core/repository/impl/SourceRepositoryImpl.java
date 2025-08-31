@@ -1,17 +1,15 @@
+/* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.tables.Sources.SOURCES;
 
+import com.dealsniper.jooq.tables.records.SourcesRecord;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
-
-import com.dealsniper.jooq.tables.records.SourcesRecord;
-
-import lombok.RequiredArgsConstructor;
 import pl.dealsniper.core.exception.InsertFailedException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;

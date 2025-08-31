@@ -1,15 +1,15 @@
+/* (C) 2025 */
 package pl.dealsniper.core.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import pl.dealsniper.core.model.CarDeal;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -50,13 +50,27 @@ public class EmailService {
                 .append("</tr>");
         for (CarDeal deal : deals) {
             sb.append("<tr>")
-                    .append("<td>").append(deal.getTitle()).append("</td>")
-                    .append("<td>").append(deal.getPrice()).append("</td>")
-                    .append("<td>").append(deal.getCurrency()).append("</td>")
-                    .append("<td><a href='").append(deal.getOfferUrl()).append("'>Link</a></td>")
-                    .append("<td>").append(deal.getLocation()).append("</td>")
-                    .append("<td>").append(deal.getMileage()).append("</td>")
-                    .append("<td>").append(deal.getYear()).append("</td>")
+                    .append("<td>")
+                    .append(deal.getTitle())
+                    .append("</td>")
+                    .append("<td>")
+                    .append(deal.getPrice())
+                    .append("</td>")
+                    .append("<td>")
+                    .append(deal.getCurrency())
+                    .append("</td>")
+                    .append("<td><a href='")
+                    .append(deal.getOfferUrl())
+                    .append("'>Link</a></td>")
+                    .append("<td>")
+                    .append(deal.getLocation())
+                    .append("</td>")
+                    .append("<td>")
+                    .append(deal.getMileage())
+                    .append("</td>")
+                    .append("<td>")
+                    .append(deal.getYear())
+                    .append("</td>")
                     .append("</tr>");
         }
         sb.append("</table></body></html>");

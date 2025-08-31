@@ -1,17 +1,16 @@
+/* (C) 2025 */
 package pl.dealsniper.core.scraper;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import lombok.extern.slf4j.Slf4j;
 import pl.dealsniper.core.model.BaseDeal;
 
 @Slf4j

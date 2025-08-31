@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -11,14 +12,12 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import pl.dealsniper.core.dto.request.UserRequest;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;

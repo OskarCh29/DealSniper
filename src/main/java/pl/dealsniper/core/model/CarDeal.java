@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.model;
 
 import lombok.Getter;

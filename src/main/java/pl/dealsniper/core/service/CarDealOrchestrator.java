@@ -1,5 +1,8 @@
+/* (C) 2025 */
 package pl.dealsniper.core.service;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,9 +11,6 @@ import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.model.Source;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.scraper.otomoto.OtomotoScraper;
-
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service

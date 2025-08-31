@@ -1,8 +1,8 @@
+/* (C) 2025 */
 package pl.dealsniper.core.repository;
 
 import java.util.Optional;
 import java.util.UUID;
-
 import pl.dealsniper.core.model.User;
 
 public interface UserRepository {
@@ -18,4 +18,6 @@ public interface UserRepository {
     void deactivateUserAccount(UUID id);
 
     void deleteUserPersonalData();
+
+    void activeUserAccount(UUID userId);
 }

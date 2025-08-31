@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.Tables.CAR_DEALS;
@@ -5,12 +6,10 @@ import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.springframework.stereotype.Repository;
-
-import lombok.RequiredArgsConstructor;
 import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.repository.CarDealTempRepository;

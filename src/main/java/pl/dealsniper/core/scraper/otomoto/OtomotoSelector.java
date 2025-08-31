@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.scraper.otomoto;
 
 import pl.dealsniper.core.scraper.Selector;

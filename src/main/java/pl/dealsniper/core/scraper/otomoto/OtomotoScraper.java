@@ -1,15 +1,14 @@
+/* (C) 2025 */
 package pl.dealsniper.core.scraper.otomoto;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 import pl.dealsniper.core.exception.UrlTimeoutException;
 import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.scraper.AbstractScraper;

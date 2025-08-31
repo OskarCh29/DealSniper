@@ -1,11 +1,10 @@
+/* (C) 2025 */
 package pl.dealsniper.core.service;
 
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
 import pl.dealsniper.core.dto.request.UserRequest;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;

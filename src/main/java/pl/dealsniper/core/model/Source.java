@@ -1,7 +1,7 @@
+/* (C) 2025 */
 package pl.dealsniper.core.model;
 
 import java.util.UUID;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.scraper;
 
 import java.io.IOException;

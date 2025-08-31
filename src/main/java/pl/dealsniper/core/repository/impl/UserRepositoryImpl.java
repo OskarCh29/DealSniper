@@ -1,18 +1,16 @@
+/* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.tables.Users.USERS;
 
+import com.dealsniper.jooq.tables.records.UsersRecord;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
-
-import com.dealsniper.jooq.tables.records.UsersRecord;
-
-import lombok.RequiredArgsConstructor;
 import pl.dealsniper.core.exception.InsertFailedException;
 import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
@@ -84,5 +82,10 @@ public class UserRepositoryImpl implements UserRepository {
                 .set(USERS.PASSWORD, cryptoService.getRandomHash())
                 .where(USERS.ACTIVE.eq(false))
                 .execute();
+    }
+
+    @Override
+    public void activeUserAccount(UUID userId) {
+        dsl.update(USERS).set(USERS.ACTIVE, true).where(USERS.ID.eq(userId)).execute();
     }
 }

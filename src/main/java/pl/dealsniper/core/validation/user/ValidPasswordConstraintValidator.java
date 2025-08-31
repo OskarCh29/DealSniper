@@ -1,9 +1,9 @@
+/* (C) 2025 */
 package pl.dealsniper.core.validation.user;
-
-import java.util.regex.Pattern;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.regex.Pattern;
 
 public class ValidPasswordConstraintValidator implements ConstraintValidator<ValidPassword, String> {
 

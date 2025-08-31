@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.exception;
 
 public class UserInactiveException extends RuntimeException {

@@ -1,9 +1,8 @@
+/* (C) 2025 */
 package pl.dealsniper.core.mapper;
 
-import org.mapstruct.Mapper;
-
 import com.dealsniper.jooq.tables.records.SourcesRecord;
-
+import org.mapstruct.Mapper;
 import pl.dealsniper.core.dto.request.SourceRequest;
 import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.model.Source;

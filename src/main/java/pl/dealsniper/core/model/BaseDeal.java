@@ -1,7 +1,7 @@
+/* (C) 2025 */
 package pl.dealsniper.core.model;
 
 import java.math.BigDecimal;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;

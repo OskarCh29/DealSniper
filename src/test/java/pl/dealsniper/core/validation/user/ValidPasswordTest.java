@@ -1,16 +1,15 @@
+/* (C) 2025 */
 package pl.dealsniper.core.validation.user;
 
+import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.Payload;
 import java.lang.annotation.Annotation;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-
-import jakarta.validation.ConstraintValidatorContext;
-import jakarta.validation.Payload;
 
 class ValidPasswordTest {
 
