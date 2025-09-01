@@ -12,6 +12,10 @@ public interface SourceRepository {
 
     Optional<Source> findByUserIdAndFilterUrl(UUID userId, String filterUrl);
 
+    Optional<Source> findById(Long id);
+
+    Optional<Source> findByIdAndUserId(Long id, UUID userId);
+
     List<Source> findByUserId(UUID userId);
 
     void deleteByUserId(UUID userId);

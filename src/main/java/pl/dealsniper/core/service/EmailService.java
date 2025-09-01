@@ -40,7 +40,7 @@ public class EmailService {
             log.info("New offers has been sent");
 
         } catch (MessagingException e) {
-            throw new IllegalStateException("Error while sending offers email");
+            throw new IllegalStateException("Error while sending offers requestedEmail");
         }
     }
 
@@ -50,7 +50,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(email);
-            helper.setSubject("DealSniper verification email");
+            helper.setSubject("DealSniper verification requestedEmail");
 
             Context context = new Context();
             context.setVariable("verificationLink", verificationLink);
@@ -59,10 +59,10 @@ public class EmailService {
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
-            log.info("Verification email has been sent to {}", email);
+            log.info("Verification requestedEmail has been sent to {}", email);
 
         } catch (MessagingException e) {
-            throw new IllegalStateException("Error while sending verification email");
+            throw new IllegalStateException("Error while sending verification requestedEmail");
         }
     }
 }

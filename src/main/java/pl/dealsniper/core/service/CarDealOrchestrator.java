@@ -23,21 +23,26 @@ public class CarDealOrchestrator {
     private final OtomotoScraper otomotoScraper;
     private final EmailService emailService;
 
-    public void processSingleSource(UUID userId, String scrapedURL) {
-        userService.ensureUserActive(userId);
-        Source source = userSourceService.getSourceByUserIdAndURL(userId, scrapedURL);
+    public void processSingleSource(Long sourceId) {
+        Source source = userSourceService.getSourceById(sourceId);
+        userService.ensureUserActive(source.getUserId());
 
-        List<CarDeal> scrapedOffers = otomotoScraper.getDeals(scrapedURL, source.getId());
+        List<CarDeal> scrapedOffers = otomotoScraper.getDeals(source.getFilteredUrl(), source.getId());
 
-        persistScrapedOffers(userId, scrapedOffers);
+        persistScrapedOffers(source.getUserId(), scrapedOffers);
     }
 
     @Transactional
     private void persistScrapedOffers(UUID userId, List<CarDeal> scrappedOffers) {
         User user = userService.getUserById(userId);
         List<CarDeal> newOffers = carDealService.loadTempTableAndFindNewDeals(scrappedOffers, userId);
-        log.info("Preparing new offers to send...");
-        emailService.sendOffersToUser(user.getEmail(), newOffers);
-        carDealService.mergeTempTableAndDeleteInactive();
+        if (newOffers.isEmpty()) {
+            log.info("There is not any new offers...");
+        } else {
+            log.info("Found {} new offers!", newOffers.size());
+            log.info("Preparing new offers to send...");
+            emailService.sendOffersToUser(user.getEmail(), newOffers);
+            carDealService.mergeTempTableAndDeleteInactive();
+        }
     }
 }

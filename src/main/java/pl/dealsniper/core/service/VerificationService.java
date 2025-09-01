@@ -29,7 +29,7 @@ public class VerificationService {
     public String generateVerificationLink(String email) {
         String generatedCode = generateVerificationCode();
         verificationRepository.save(generatedCode, email);
-        return applicationProperties.getBaseUrl() + "/api/v1/verification/" + generatedCode;
+        return applicationProperties.getBaseUrl() + "/verification.html?code=" + generatedCode;
     }
 
     public Verification validateCode(String code) {
@@ -45,7 +45,7 @@ public class VerificationService {
 
     public String getEmailByCode(VerificationRequest verificationRequest) {
         Verification verification = validateCode(verificationRequest.code());
-        return verification.getEmail();
+        return verification.getRequestedEmail();
     }
 
     @Transactional

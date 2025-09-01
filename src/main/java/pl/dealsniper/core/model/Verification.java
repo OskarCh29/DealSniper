@@ -11,9 +11,9 @@ import lombok.Setter;
 @Builder
 public class Verification {
 
-    private String email;
-
     private String verificationCode;
 
     private LocalDateTime createdAt;
+
+    private String requestedEmail;
 }

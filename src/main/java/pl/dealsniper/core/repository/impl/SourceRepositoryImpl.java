@@ -58,4 +58,18 @@ public class SourceRepositoryImpl implements SourceRepository {
     public void deleteByUserId(UUID id) {
         dsl.deleteFrom(SOURCES).where(SOURCES.USER_ID.eq(id)).execute();
     }
+
+    @Override
+    public Optional<Source> findById(Long id) {
+        return dsl.selectFrom(SOURCES).where(SOURCES.ID.eq(id)).fetchOptional().map(mapper::toDomainSource);
+    }
+
+    @Override
+    public Optional<Source> findByIdAndUserId(Long id, UUID userId) {
+        return dsl.selectFrom(SOURCES)
+                .where(SOURCES.ID.eq(id))
+                .and(SOURCES.USER_ID.eq(userId))
+                .fetchOptional()
+                .map(mapper::toDomainSource);
+    }
 }

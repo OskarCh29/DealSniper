@@ -5,4 +5,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record SourceResponse(Long id, UUID userId, String filterUrl) {}
+public record SourceResponse(Long id, UUID userId, String filteredUrl) {}
