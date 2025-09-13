@@ -2,9 +2,6 @@
 package pl.dealsniper.core.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.dealsniper.core.dto.response.ErrorResponse;
+
+import java.time.LocalDateTime;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
@@ -43,6 +44,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleRecordNotFound(RecordNotFoundException ex, HttpServletRequest request) {
 
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request, WARN_LOG);
+    }
+
+    @ExceptionHandler(InsertFailedException.class)
+    public ResponseEntity<ErrorResponse> handleInsertFailedException(InsertFailedException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request, WARN_LOG);
+    }
+
+    @ExceptionHandler(ResourceUsedException.class)
+    public ResponseEntity<ErrorResponse> handleResourceUsedException(ResourceUsedException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request, WARN_LOG);
+    }
+
+    @ExceptionHandler(UserInactiveException.class)
+    public ResponseEntity<ErrorResponse> handleUserInactiveException(UserInactiveException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, WARN_LOG);
+
+    }
+
+    @ExceptionHandler(VerificationCodeException.class)
+    public ResponseEntity<ErrorResponse> handleVerificationCodeException(VerificationCodeException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, WARN_LOG);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(

@@ -34,7 +34,7 @@ public class SourceRepositoryImpl implements SourceRepository {
                 .fetchOne();
 
         if (inserted == null) {
-            throw new InsertFailedException("SOURCE", source.getId(), "Source userId:" + source.getUserId());
+            throw new InsertFailedException("SOURCE:"+ source.getId(), "Source userId:" + source.getUserId());
         }
 
         return mapper.toDomainSource(inserted);

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import pl.dealsniper.core.exception.InsertFailedException;
 import pl.dealsniper.core.mapper.TaskMapper;
@@ -49,7 +50,7 @@ public class TaskRepositoryImpl implements TaskRepository {
                 .fetchOne();
 
         if (savedRecord == null) {
-            throw new InsertFailedException("TASK", task.getUserId() + ":" + task.getSourceId() + " already exists");
+            throw new InsertFailedException("TASK: ", task.getUserId() + ":" + task.getSourceId() + " already exists");
         }
 
         return mapper.toDomainModel(savedRecord);
@@ -62,5 +63,11 @@ public class TaskRepositoryImpl implements TaskRepository {
                 .where(SCHEDULED_TASKS.USER_ID.eq(userId))
                 .and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId))
                 .execute();
+    }
+
+    @Override
+    public Integer countUserStartedTasksByUserId(UUID userId) {
+        return dsl.fetchCount(DSL.selectFrom(SCHEDULED_TASKS)
+                .where(SCHEDULED_TASKS.USER_ID.eq(userId)));
     }
 }

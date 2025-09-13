@@ -9,6 +9,8 @@ public interface TaskRepository {
 
     List<Task> findAllActiveTasks();
 
+    Integer countUserStartedTasksByUserId(UUID userId);
+
     boolean existsActiveTaskByUserAndSourceId(UUID userId, Long sourceId);
 
     Task save(Task task);

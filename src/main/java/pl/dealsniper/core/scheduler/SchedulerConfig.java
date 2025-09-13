@@ -1,6 +1,7 @@
 /* (C) 2025 */
 package pl.dealsniper.core.scheduler;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -8,12 +9,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration
 public class SchedulerConfig {
 
-    private static final Integer MAX_POOL_SIZE = 20;
+    @Value("${app.config.thread-max-pool-size}")
+    private Integer maxPoolSize;
 
     @Bean
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(MAX_POOL_SIZE);
+        scheduler.setPoolSize(maxPoolSize);
         scheduler.setThreadNamePrefix("deal-sniper-scheduler-");
         scheduler.initialize();
         return scheduler;

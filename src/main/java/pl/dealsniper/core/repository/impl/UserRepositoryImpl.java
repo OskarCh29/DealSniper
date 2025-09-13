@@ -1,12 +1,7 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
-import static com.dealsniper.jooq.tables.Users.USERS;
-
 import com.dealsniper.jooq.tables.records.UsersRecord;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -16,6 +11,12 @@ import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
 import pl.dealsniper.core.service.CryptoService;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.dealsniper.jooq.tables.Users.USERS;
 
 @Repository
 @RequiredArgsConstructor
@@ -64,28 +65,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void deactivateUserAccount(UUID id) {
-        dsl.update(USERS)
-                .set(USERS.ACTIVE, false)
-                .set(USERS.DELETED_AT, LocalDateTime.now())
-                .where(USERS.ID.eq(id))
-                .execute();
-    }
-
-    @Override
-    public void deleteUserPersonalData() {
+    public void deleteUserPersonalData(UUID userId) {
         dsl.update(USERS)
                 .set(
                         USERS.EMAIL,
                         DSL.concat(
                                 DSL.inline("deleted_user_"), USERS.ID.cast(String.class), DSL.inline("@example.com")))
                 .set(USERS.PASSWORD, cryptoService.getRandomHash())
-                .where(USERS.ACTIVE.eq(false))
+                .set(USERS.ACTIVE, false)
+                .set(USERS.DELETED_AT, LocalDateTime.now())
+                .where(USERS.ID.eq(userId))
                 .execute();
-    }
-
-    @Override
-    public void activeUserAccount(UUID userId) {
-        dsl.update(USERS).set(USERS.ACTIVE, true).where(USERS.ID.eq(userId)).execute();
     }
 }

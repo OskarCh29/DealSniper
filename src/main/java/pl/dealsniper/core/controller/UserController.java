@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import pl.dealsniper.core.service.CryptoService;
 import pl.dealsniper.core.service.EmailService;
 import pl.dealsniper.core.service.UserService;
 import pl.dealsniper.core.service.VerificationService;
+import pl.dealsniper.core.util.ResponseUtils;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -39,7 +41,7 @@ public class UserController {
         verificationService.deleteUsedVerification(verificationRequest.code());
         UserResponse userResponse = userMapper.toUserResponse(savedUser);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+        return ResponseUtils.created(userResponse, savedUser.getId());
     }
 
     @PostMapping("/register")

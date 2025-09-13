@@ -3,6 +3,7 @@ package pl.dealsniper.core.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.dto.request.UserRequest;
@@ -13,6 +14,7 @@ import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -38,7 +40,7 @@ public class UserService {
     @Transactional
     public void deleteUserAccount(UUID uuid) {
         User user = getUserById(uuid);
-        userRepository.deactivateUserAccount(user.getId());
+        userRepository.deleteUserPersonalData(user.getId());
     }
 
     public void ensureEmailAvailable(String email) {
