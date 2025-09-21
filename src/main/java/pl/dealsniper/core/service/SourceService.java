@@ -34,9 +34,18 @@ public class SourceService {
         }
         return sourceRepository.save(source);
     }
+
+    @Transactional
+    public void deleteSourceById(Long id) {
+        int deleted = sourceRepository.deleteById(id);
+        if (deleted == 0) {
+            throw new RecordNotFoundException("Source with provided id not found");
+        }
+    }
+
     @Transactional(readOnly = true)
     public void validateUserOwnsSource(UUID userId, Long sourceId) {
-        if (!sourceRepository.existsForUserAndActive(userId,sourceId)){
+        if (!sourceRepository.existsForUserAndActive(userId, sourceId)) {
             throw new RecordNotFoundException(
                     "Source with ID " + sourceId + " does not belong to active user with ID " + userId);
         }

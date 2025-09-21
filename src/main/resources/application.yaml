@@ -1,3 +1,4 @@
+#Spring/Flyway
 spring:
   main:
     banner-mode: false
@@ -6,10 +7,12 @@ spring:
     validate-on-migrate: true
     locations:
       - classpath:db/migration
+#Database
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+#Email config
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -19,12 +22,15 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+#Swagger
 springdoc:
   swagger-ui:
     path: "/api-doc"
+#Security
 security:
   saltPrefix: ${PREFIX}
   saltSuffix: ${SUFFIX}
+#Application config
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   config:

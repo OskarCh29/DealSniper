@@ -21,10 +21,17 @@ public class SchedulerController {
     private final SourceService sourceService;
 
     @GetMapping("/start")
-    public ResponseEntity<?> startScheduledTask(@RequestParam UUID userId, @RequestParam Long sourceId,
-                                                @RequestParam String taskName) {
+    public ResponseEntity<?> startScheduledTask(
+            @RequestParam UUID userId, @RequestParam Long sourceId, @RequestParam String taskName) {
         sourceService.validateUserOwnsSource(userId, sourceId);
         schedulerService.startScheduledTask(userId, sourceId, taskName);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/resume")
+    public ResponseEntity<?> resumeExistingTask(
+            @RequestParam UUID userId, @RequestParam Long sourceId, @RequestParam String taskName) {
+        schedulerService.resumeInactiveTask(userId, sourceId, taskName);
         return ResponseEntity.ok().build();
     }
 

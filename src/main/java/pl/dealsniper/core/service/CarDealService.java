@@ -36,6 +36,16 @@ public class CarDealService {
         return tempDealRepository.getNewDeals();
     }
 
+    @Transactional(readOnly = true)
+    public List<CarDeal> getUserActiveOffers(UUID userId) {
+        List<CarDeal> activeOffers = carDealRepository.findAllByUserId(userId);
+        if (activeOffers.isEmpty()) {
+            throw new RecordNotFoundException("No offers found for provided user");
+        } else {
+            return activeOffers;
+        }
+    }
+
     private void validateIfUserActiveAndExists(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RecordNotFoundException("User not found"));
         if (!user.getActive()) {

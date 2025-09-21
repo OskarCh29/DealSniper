@@ -3,8 +3,12 @@ package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
 import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
+import static com.dealsniper.jooq.tables.Sources.SOURCES;
 
+import com.dealsniper.jooq.tables.records.CarDealsRecord;
 import java.util.List;
+import java.util.UUID;
+import javax.swing.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -95,7 +99,25 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
     }
 
     @Override
-    public List<CarDeal> findAll() {
-        return dsl.selectFrom(CAR_DEALS).fetch().map(mapper::toDomainCarDeal);
+    public List<CarDeal> findAllByUserId(UUID userId) {
+
+        return dsl
+                .select(
+                        CAR_DEALS.TITLE,
+                        CAR_DEALS.PRICE,
+                        CAR_DEALS.CURRENCY,
+                        CAR_DEALS.LOCATION,
+                        CAR_DEALS.MILEAGE,
+                        CAR_DEALS.YEAR,
+                        CAR_DEALS.OFFER_URL)
+                .from(CAR_DEALS)
+                .join(SOURCES)
+                .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
+                .where(SOURCES.USER_ID.eq(userId))
+                .and(CAR_DEALS.ACTIVE.isTrue())
+                .fetchInto(CarDealsRecord.class)
+                .stream()
+                .map(mapper::toDomainCarDeal)
+                .toList();
     }
 }

@@ -18,7 +18,7 @@ public interface SourceRepository {
 
     List<Source> findByUserId(UUID userId);
 
-    void deleteByUserId(UUID userId);
+    int deleteById(Long id);
 
     boolean existsForUserAndActive(UUID userId, Long sourceId);
 }

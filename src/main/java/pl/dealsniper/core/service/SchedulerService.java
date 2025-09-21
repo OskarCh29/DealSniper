@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.repository.TaskRepository;
+import pl.dealsniper.core.scheduler.ManagedTask;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 
 @Slf4j
 @Service
@@ -38,51 +38,84 @@ public class SchedulerService {
     private final TaskRepository taskRepository;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final CarDealOrchestrator orchestrator;
-    private final Map<String, ScheduledFuture<?>> activeTasks = new ConcurrentHashMap<>();
 
+    private final Map<String, ManagedTask> activeTasks = new ConcurrentHashMap<>();
 
     @EventListener(ApplicationReadyEvent.class)
     public void rescheduleActiveTasks() {
-        List<Task> activeTasks = taskRepository.findAllActiveTasks();
-        for (int i = 0; i < activeTasks.size(); i++) {
-            Task task = activeTasks.get(i);
-            restoreActiveTasks(task.getUserId(), task.getSourceId(), task.getTaskName(), i);
+        List<Task> dbActiveTasks = taskRepository.findAllActiveTasks();
+
+        for (int i = 0; i < dbActiveTasks.size(); i++) {
+            Task task = dbActiveTasks.get(i);
+            String key = task.getUserId() + ":" + task.getSourceId();
+
+            if (activeTasks.containsKey(key) && activeTasks.get(key).isRunning()) {
+                log.info("Task {} already running, skipping restore", key);
+                continue;
+            }
+
+            ManagedTask managedTask = createManagedTask(task.getUserId(), task.getSourceId(), task.getTaskName());
+            long delaySeconds = (long) (Math.random() * DELAY_MULTIPLAYER) + (long) i * STAGGER_STEP;
+            Instant startTime = Instant.now().plusSeconds(delaySeconds);
+
+            managedTask.start(startTime);
+            activeTasks.put(key, managedTask);
+
+            log.info("Found active task: {}.Restoring...", key);
         }
     }
 
     public void startScheduledTask(UUID userId, Long sourceId, String taskName) {
         checkIfTaskAlreadyExists(userId, sourceId);
-        String key = userId + ":" + sourceId;
+        checkIfUserCanStartNewTask(userId);
 
-        if (activeTasks.containsKey(key)) {
-            log.info("Task already scheduled for {}", taskName);
+        String key = getTaskKey(userId, sourceId);
+
+        if (checkIfTaskAlreadyRunning(key)) {
+            log.info("Task already running for {}", taskName);
             return;
         }
-        checkIfUserCanStartNewTask(userId);
-        Runnable task = () -> {
-            try {
-                orchestrator.processSingleSource(sourceId, taskName);
-            } catch (Exception e) {
-                log.error("Error scheduled task for {}:{}", userId, sourceId, e);
-            }
-        };
-        ScheduledFuture<?> future =
-                taskScheduler.scheduleAtFixedRate(task, calculateInitialDelay(), getScheduleInterval());
-        activeTasks.put(key, future);
-        log.info("Scheduled task for {}", key);
+        ManagedTask task = createManagedTask(userId, sourceId, taskName);
+        task.start(calculateInitialDelay());
+        activeTasks.put(key, task);
+
         saveNewTask(userId, sourceId, taskName);
     }
 
     public void stopScheduledTask(UUID userId, Long sourceId) {
-        String key = userId + ":" + sourceId;
-        ScheduledFuture<?> future = activeTasks.remove(key);
-        if (future != null) {
-            future.cancel(false);
-            log.info("Stopped task for {}", key);
+        String key = getTaskKey(userId, sourceId);
+        ManagedTask task = activeTasks.get(key);
+        if (task != null) {
+            task.stop();
             stopTask(userId, sourceId);
         } else {
-            log.info("Task for {} was already stopped", key);
+            log.info("Task {} was not running", key);
         }
+    }
+
+    public void resumeInactiveTask(UUID userId, Long sourceId, String taskName) {
+        String key = getTaskKey(userId, sourceId);
+        checkIfUserCanStartNewTask(userId);
+
+        ManagedTask task = activeTasks.get(key);
+        if (task == null) {
+            task = createManagedTask(userId, sourceId, taskName);
+            activeTasks.put(key, task);
+        }
+        task.resume();
+        taskRepository.activateTask(userId, taskName);
+
+    }
+
+    private ManagedTask createManagedTask(UUID userId, Long sourceId, String taskName) {
+        String key = userId + ":" + sourceId;
+        return new ManagedTask(
+                key,
+                sourceId,
+                taskName,
+                taskScheduler,
+                (src) -> orchestrator.processSingleSource(src, taskName),
+                Duration.ofHours(schedulerInterval));
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +138,8 @@ public class SchedulerService {
         Task newTask = Task.builder()
                 .taskName(taskName)
                 .userId(userId)
-                .sourceId(sourceId).build();
+                .sourceId(sourceId)
+                .build();
         taskRepository.save(newTask);
     }
 
@@ -114,34 +148,17 @@ public class SchedulerService {
         taskRepository.deactivateTask(userId, sourceId);
     }
 
-    private void restoreActiveTasks(UUID userId, Long sourceId, String taskName, int index) {
-        String key = userId + ":" + sourceId;
-        if (activeTasks.containsKey(key)) {
-            log.info("Task already restored for {}", key);
-            return;
-        }
-        Runnable task = () -> {
-            try {
-                orchestrator.processSingleSource(sourceId, taskName);
-            } catch (Exception e) {
-                log.error("Error scheduled task for {}:{}", userId, sourceId, e);
-            }
-        };
-        long delaySeconds = (long) (Math.random() * DELAY_MULTIPLAYER) + (long) index * STAGGER_STEP;
-        Instant startTime = Instant.now().plusSeconds(delaySeconds);
-
-        ScheduledFuture<?> future =
-                taskScheduler.scheduleAtFixedRate(task, startTime, getScheduleInterval());
-        activeTasks.put(key, future);
-        log.info("Found active task for {}. Restoring...", key);
-    }
-
     private Instant calculateInitialDelay() {
         long randomDelay = (long) (Math.random() * DELAY_MULTIPLAYER);
         return Instant.now().plusSeconds(randomDelay);
     }
 
-    private Duration getScheduleInterval() {
-        return Duration.ofHours(schedulerInterval);
+    private boolean checkIfTaskAlreadyRunning(String key) {
+        return activeTasks.containsKey(key) && activeTasks.get(key).isRunning();
     }
+
+    private String getTaskKey(UUID userId, Long sourceId) {
+        return userId + ":" + sourceId;
+    }
+
 }

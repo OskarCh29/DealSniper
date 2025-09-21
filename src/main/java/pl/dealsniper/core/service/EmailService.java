@@ -3,6 +3,7 @@ package pl.dealsniper.core.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -11,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import pl.dealsniper.core.model.CarDeal;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -63,6 +62,28 @@ public class EmailService {
 
         } catch (MessagingException e) {
             throw new IllegalStateException("Error while sending verification requestedEmail");
+        }
+    }
+
+    public void sendUserActiveOffers(String email, List<CarDeal> activeOffers) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setSubject("DealSniper - Your active offers");
+
+            Context context = new Context();
+            context.setVariable("deals", activeOffers);
+
+            String htmlContent = templateEngine.process("car_deals_offers_email.html", context);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            log.info("User requested offers has been send");
+
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Error while sending user active offers");
         }
     }
 }

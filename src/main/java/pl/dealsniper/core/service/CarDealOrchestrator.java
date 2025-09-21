@@ -32,6 +32,12 @@ public class CarDealOrchestrator {
         persistScrapedOffers(source.getUserId(), scrapedOffers, taskName);
     }
 
+    public void sendActiveOffersToUser(UUID userId) {
+        List<CarDeal> deals = carDealService.getUserActiveOffers(userId);
+        User user = userService.getUserById(userId);
+        emailService.sendUserActiveOffers(user.getEmail(), deals);
+    }
+
     @Transactional
     private void persistScrapedOffers(UUID userId, List<CarDeal> scrappedOffers, String taskName) {
         User user = userService.getUserById(userId);

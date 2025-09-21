@@ -4,6 +4,7 @@ package pl.dealsniper.core.mapper;
 import com.dealsniper.jooq.tables.records.CarDealsRecord;
 import com.dealsniper.jooq.tables.records.CarDealsTmpRecord;
 import org.mapstruct.Mapper;
+import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.model.CarDeal;
 
 @Mapper(componentModel = "spring")
@@ -14,4 +15,6 @@ public interface CarDealMapper {
     CarDeal toDomainCarDeal(CarDealsTmpRecord carDealsTmpRecord);
 
     CarDealsRecord toJooqCarDealRecord(CarDeal carDeal);
+
+    CarDealResponse toCarDealResponse(CarDeal carDeal);
 }

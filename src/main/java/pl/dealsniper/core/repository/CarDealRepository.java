@@ -2,6 +2,8 @@
 package pl.dealsniper.core.repository;
 
 import java.util.List;
+import java.util.UUID;
+import javax.swing.*;
 import pl.dealsniper.core.model.BaseDeal;
 
 public interface CarDealRepository<T extends BaseDeal> {
@@ -15,5 +17,5 @@ public interface CarDealRepository<T extends BaseDeal> {
 
     boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId);
 
-    List<T> findAll();
+    List<T> findAllByUserId(UUID userId);
 }

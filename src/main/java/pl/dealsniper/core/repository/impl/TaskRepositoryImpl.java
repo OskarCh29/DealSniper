@@ -71,4 +71,12 @@ public class TaskRepositoryImpl implements TaskRepository {
         return dsl.fetchCount(DSL.selectFrom(SCHEDULED_TASKS).where(SCHEDULED_TASKS.USER_ID.eq(userId)));
     }
 
+    @Override
+    public void activateTask(UUID userId, String taskName) {
+        dsl.update(SCHEDULED_TASKS)
+                .set(SCHEDULED_TASKS.ACTIVE, true)
+                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
+                .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
+                .execute();
+    }
 }

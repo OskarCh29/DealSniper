@@ -16,4 +16,6 @@ public interface TaskRepository {
     Task save(Task task);
 
     void deactivateTask(UUID userId, Long sourceId);
+
+    void activateTask(UUID userId, String taskName);
 }

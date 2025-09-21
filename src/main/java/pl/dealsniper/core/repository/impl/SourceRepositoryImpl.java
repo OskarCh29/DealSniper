@@ -1,7 +1,13 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
+import static com.dealsniper.jooq.tables.Sources.SOURCES;
+import static com.dealsniper.jooq.tables.Users.USERS;
+
 import com.dealsniper.jooq.tables.records.SourcesRecord;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -9,13 +15,6 @@ import pl.dealsniper.core.exception.InsertFailedException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
 import pl.dealsniper.core.repository.SourceRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static com.dealsniper.jooq.tables.Sources.SOURCES;
-import static com.dealsniper.jooq.tables.Users.USERS;
 
 @Repository
 @RequiredArgsConstructor
@@ -57,8 +56,8 @@ public class SourceRepositoryImpl implements SourceRepository {
     }
 
     @Override
-    public void deleteByUserId(UUID id) {
-        dsl.deleteFrom(SOURCES).where(SOURCES.USER_ID.eq(id)).execute();
+    public int deleteById(Long id) {
+        return dsl.deleteFrom(SOURCES).where(SOURCES.ID.eq(id)).execute();
     }
 
     @Override
@@ -77,14 +76,12 @@ public class SourceRepositoryImpl implements SourceRepository {
 
     @Override
     public boolean existsForUserAndActive(UUID userId, Long sourceId) {
-        return dsl.fetchExists(
-                dsl.selectOne()
-                        .from(SOURCES)
-                        .join(USERS).on(SOURCES.USER_ID.eq(USERS.ID))
-                        .where(SOURCES.ID.eq(sourceId))
-                        .and(USERS.ID.eq(userId))
-                        .and(USERS.ACTIVE.isTrue())
-
-        );
+        return dsl.fetchExists(dsl.selectOne()
+                .from(SOURCES)
+                .join(USERS)
+                .on(SOURCES.USER_ID.eq(USERS.ID))
+                .where(SOURCES.ID.eq(sourceId))
+                .and(USERS.ID.eq(userId))
+                .and(USERS.ACTIVE.isTrue()));
     }
 }
