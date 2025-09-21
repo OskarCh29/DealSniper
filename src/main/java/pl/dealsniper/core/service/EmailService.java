@@ -3,7 +3,6 @@ package pl.dealsniper.core.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -13,6 +12,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import pl.dealsniper.core.model.CarDeal;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,13 +22,13 @@ public class EmailService {
     private final JavaMailSenderImpl mailSender;
     private final SpringTemplateEngine templateEngine;
 
-    public void sendOffersToUser(String userEmail, List<CarDeal> offers) {
+    public void sendOffersToUser(String userEmail, List<CarDeal> offers, String taskName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(userEmail);
-            helper.setSubject("New car offers");
+            helper.setSubject("New offers for your" + taskName + "filter");
 
             Context context = new Context();
             context.setVariable("deals", offers);

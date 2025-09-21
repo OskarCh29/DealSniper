@@ -12,4 +12,6 @@ public class Task {
     private UUID userId;
 
     private Long sourceId;
+
+    private String taskName;
 }

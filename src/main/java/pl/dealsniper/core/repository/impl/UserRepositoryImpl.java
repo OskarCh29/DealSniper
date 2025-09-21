@@ -1,7 +1,12 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
+import static com.dealsniper.jooq.tables.Users.USERS;
+
 import com.dealsniper.jooq.tables.records.UsersRecord;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -11,12 +16,6 @@ import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
 import pl.dealsniper.core.service.CryptoService;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import static com.dealsniper.jooq.tables.Users.USERS;
 
 @Repository
 @RequiredArgsConstructor

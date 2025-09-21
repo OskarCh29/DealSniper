@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledFuture;
 @RequiredArgsConstructor
 public class SchedulerService {
 
-
     @Value("${app.config.scheduler-hour-interval}")
     private int schedulerInterval;
 
@@ -34,6 +33,7 @@ public class SchedulerService {
     private final ThreadPoolTaskScheduler taskScheduler;
     private final CarDealOrchestrator orchestrator;
     private final Map<String, ScheduledFuture<?>> activeTasks = new ConcurrentHashMap<>();
+    private static final int DELAY_MULTIPLAYER = 120;
 
     @Value("${app.config.tasks-per-user}")
     private int userTasks;
@@ -41,21 +41,21 @@ public class SchedulerService {
     @EventListener(ApplicationReadyEvent.class)
     public void rescheduleActiveTasks() {
         List<Task> activeTasks = taskRepository.findAllActiveTasks();
-        activeTasks.forEach(task -> restoreActiveTasks(task.getUserId(), task.getSourceId()));
+        activeTasks.forEach(task -> restoreActiveTasks(task.getUserId(), task.getSourceId(), task.getTaskName()));
     }
 
-    public void startScheduledTask(UUID userId, Long sourceId) {
+    public void startScheduledTask(UUID userId, Long sourceId, String taskName) {
         checkIfTaskAlreadyExists(userId, sourceId);
         String key = userId + ":" + sourceId;
 
         if (activeTasks.containsKey(key)) {
-            log.info("Task already scheduled for {}", key);
+            log.info("Task already scheduled for {}", taskName);
             return;
         }
         checkIfUserCanStartNewTask(userId);
         Runnable task = () -> {
             try {
-                orchestrator.processSingleSource(sourceId);
+                orchestrator.processSingleSource(sourceId, taskName);
             } catch (Exception e) {
                 log.error("Error scheduled task for {}:{}", userId, sourceId, e);
             }
@@ -64,7 +64,7 @@ public class SchedulerService {
                 taskScheduler.scheduleAtFixedRate(task, calculateInitialDelay(), getScheduleInterval());
         activeTasks.put(key, future);
         log.info("Scheduled task for {}", key);
-        saveNewTask(userId, sourceId);
+        saveNewTask(userId, sourceId, taskName);
     }
 
     public void stopScheduledTask(UUID userId, Long sourceId) {
@@ -94,8 +94,12 @@ public class SchedulerService {
     }
 
     @Transactional
-    private void saveNewTask(UUID userId, Long sourceId) {
-        Task newTask = Task.builder().userId(userId).sourceId(sourceId).build();
+    private void saveNewTask(UUID userId, Long sourceId, String taskName) {
+
+        Task newTask = Task.builder()
+                .taskName(taskName)
+                .userId(userId)
+                .sourceId(sourceId).build();
         taskRepository.save(newTask);
     }
 
@@ -104,7 +108,7 @@ public class SchedulerService {
         taskRepository.deactivateTask(userId, sourceId);
     }
 
-    private void restoreActiveTasks(UUID userId, Long sourceId){
+    private void restoreActiveTasks(UUID userId, Long sourceId, String taskName) {
         String key = userId + ":" + sourceId;
         if (activeTasks.containsKey(key)) {
             log.info("Task already restored for {}", key);
@@ -112,7 +116,7 @@ public class SchedulerService {
         }
         Runnable task = () -> {
             try {
-                orchestrator.processSingleSource(sourceId);
+                orchestrator.processSingleSource(sourceId, taskName);
             } catch (Exception e) {
                 log.error("Error scheduled task for {}:{}", userId, sourceId, e);
             }
@@ -121,16 +125,14 @@ public class SchedulerService {
                 taskScheduler.scheduleAtFixedRate(task, calculateInitialDelay(), getScheduleInterval());
         activeTasks.put(key, future);
         log.info("Restored task for {}", key);
-
     }
 
     private Instant calculateInitialDelay() {
-        long randomDelay = (long) (Math.random()*120);
+        long randomDelay = (long) (Math.random() * DELAY_MULTIPLAYER);
         return Instant.now().plusSeconds(randomDelay);
     }
 
     private Duration getScheduleInterval() {
         return Duration.ofHours(schedulerInterval);
     }
-
 }

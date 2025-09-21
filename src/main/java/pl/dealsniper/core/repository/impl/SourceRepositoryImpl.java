@@ -1,12 +1,7 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
-import static com.dealsniper.jooq.tables.Sources.SOURCES;
-
 import com.dealsniper.jooq.tables.records.SourcesRecord;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -14,6 +9,13 @@ import pl.dealsniper.core.exception.InsertFailedException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
 import pl.dealsniper.core.repository.SourceRepository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.dealsniper.jooq.tables.Sources.SOURCES;
+import static com.dealsniper.jooq.tables.Users.USERS;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class SourceRepositoryImpl implements SourceRepository {
                 .fetchOne();
 
         if (inserted == null) {
-            throw new InsertFailedException("SOURCE:"+ source.getId(), "Source userId:" + source.getUserId());
+            throw new InsertFailedException("SOURCE:" + source.getId(), "Source userId:" + source.getUserId());
         }
 
         return mapper.toDomainSource(inserted);
@@ -71,5 +73,18 @@ public class SourceRepositoryImpl implements SourceRepository {
                 .and(SOURCES.USER_ID.eq(userId))
                 .fetchOptional()
                 .map(mapper::toDomainSource);
+    }
+
+    @Override
+    public boolean existsForUserAndActive(UUID userId, Long sourceId) {
+        return dsl.fetchExists(
+                dsl.selectOne()
+                        .from(SOURCES)
+                        .join(USERS).on(SOURCES.USER_ID.eq(USERS.ID))
+                        .where(SOURCES.ID.eq(sourceId))
+                        .and(USERS.ID.eq(userId))
+                        .and(USERS.ACTIVE.isTrue())
+
+        );
     }
 }

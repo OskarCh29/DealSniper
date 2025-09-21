@@ -42,6 +42,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     public Task save(Task task) {
         ScheduledTasksRecord record = mapper.toJooqRecord(task);
         ScheduledTasksRecord savedRecord = dsl.insertInto(SCHEDULED_TASKS)
+                .set(SCHEDULED_TASKS.TASK_NAME, record.getTaskName())
                 .set(SCHEDULED_TASKS.USER_ID, record.getUserId())
                 .set(SCHEDULED_TASKS.SOURCE_ID, record.getSourceId())
                 .set(SCHEDULED_TASKS.ACTIVE, true)
@@ -67,7 +68,7 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public Integer countUserStartedTasksByUserId(UUID userId) {
-        return dsl.fetchCount(DSL.selectFrom(SCHEDULED_TASKS)
-                .where(SCHEDULED_TASKS.USER_ID.eq(userId)));
+        return dsl.fetchCount(DSL.selectFrom(SCHEDULED_TASKS).where(SCHEDULED_TASKS.USER_ID.eq(userId)));
     }
+
 }

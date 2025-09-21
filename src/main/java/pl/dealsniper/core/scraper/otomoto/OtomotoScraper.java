@@ -1,6 +1,10 @@
 /* (C) 2025 */
 package pl.dealsniper.core.scraper.otomoto;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -9,16 +13,12 @@ import pl.dealsniper.core.exception.UrlTimeoutException;
 import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.scraper.AbstractScraper;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @Component
 public class OtomotoScraper extends AbstractScraper<CarDeal> {
 
     private static final int OFFERS_PER_PAGE = 32;
+    private static final int MINIMUM_OFFERS_TO_CORRECT_CURRENCY = 2;
 
     @Override
     public List<CarDeal> getDeals(String platformUrl, Long sourceId) {
@@ -51,8 +51,6 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
                     deal.setSourceId(sourceId);
 
                     carDeals.add(deal);
-
-                    fixFirstDealCurrencyDueToAdvertisement(carDeals, deal);
                 }
                 if (listings.size() == OFFERS_PER_PAGE) {
                     getRandomDelay();
@@ -65,7 +63,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
             log.error("Request time exceeded: {}", e.getMessage());
             throw new UrlTimeoutException("Request timeout exceeded");
         }
-
+        fixFirstDealCurrencyDueToAdvertisement(carDeals);
         return carDeals;
     }
 
@@ -100,11 +98,12 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
                 .build();
     }
 
-    private void fixFirstDealCurrencyDueToAdvertisement(List<CarDeal> carDeals, CarDeal newDeal) {
-        if (carDeals.size() == 1) {
+    private void fixFirstDealCurrencyDueToAdvertisement(List<CarDeal> carDeals) {
+        if (carDeals.size() >= MINIMUM_OFFERS_TO_CORRECT_CURRENCY) {
             CarDeal first = carDeals.getFirst();
-            if (first.getCurrency() == null && newDeal.getCurrency() != null) {
-                first.setCurrency(newDeal.getCurrency());
+            CarDeal second = carDeals.get(1);
+            if (first.getCurrency() == null && second.getCurrency() != null) {
+                first.setCurrency(second.getCurrency());
             }
         }
     }

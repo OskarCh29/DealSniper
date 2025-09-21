@@ -18,22 +18,22 @@ import pl.dealsniper.core.scraper.otomoto.OtomotoScraper;
 public class CarDealOrchestrator {
 
     private final UserService userService;
-    private final UserSourceService userSourceService;
+    private final SourceService sourceService;
     private final CarDealService carDealService;
     private final OtomotoScraper otomotoScraper;
     private final EmailService emailService;
 
-    public void processSingleSource(Long sourceId) {
-        Source source = userSourceService.getSourceById(sourceId);
+    public void processSingleSource(Long sourceId, String taskName) {
+        Source source = sourceService.getSourceById(sourceId);
         userService.ensureUserActive(source.getUserId());
 
         List<CarDeal> scrapedOffers = otomotoScraper.getDeals(source.getFilteredUrl(), source.getId());
 
-        persistScrapedOffers(source.getUserId(), scrapedOffers);
+        persistScrapedOffers(source.getUserId(), scrapedOffers, taskName);
     }
 
     @Transactional
-    private void persistScrapedOffers(UUID userId, List<CarDeal> scrappedOffers) {
+    private void persistScrapedOffers(UUID userId, List<CarDeal> scrappedOffers, String taskName) {
         User user = userService.getUserById(userId);
         List<CarDeal> newOffers = carDealService.loadTempTableAndFindNewDeals(scrappedOffers, userId);
         if (newOffers.isEmpty()) {
@@ -41,7 +41,7 @@ public class CarDealOrchestrator {
         } else {
             log.info("Found {} new offers!", newOffers.size());
             log.info("Preparing new offers to send...");
-            emailService.sendOffersToUser(user.getEmail(), newOffers);
+            emailService.sendOffersToUser(user.getEmail(), newOffers, taskName);
             carDealService.mergeTempTableAndDeleteInactive();
         }
     }

@@ -12,7 +12,7 @@ import pl.dealsniper.core.dto.request.SourceRequest;
 import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
-import pl.dealsniper.core.service.UserSourceService;
+import pl.dealsniper.core.service.SourceService;
 import pl.dealsniper.core.util.ResponseUtils;
 
 @RestController
@@ -20,12 +20,12 @@ import pl.dealsniper.core.util.ResponseUtils;
 @RequiredArgsConstructor
 public class SourceController {
 
-    private final UserSourceService userSourceService;
+    private final SourceService sourceService;
     private final SourceMapper sourceMapper;
 
     @PostMapping
     ResponseEntity<SourceResponse> registerNewSource(@Valid @RequestBody SourceRequest sourceRequest) {
-        Source source = userSourceService.saveUserSource(sourceRequest);
+        Source source = sourceService.saveUserSource(sourceRequest);
         SourceResponse response = sourceMapper.toSourceResponse(source);
         return ResponseUtils.created(response, source.getId());
     }
