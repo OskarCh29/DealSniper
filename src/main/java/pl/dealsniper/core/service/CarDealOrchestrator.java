@@ -37,7 +37,7 @@ public class CarDealOrchestrator {
         User user = userService.getUserById(userId);
         List<CarDeal> newOffers = carDealService.loadTempTableAndFindNewDeals(scrappedOffers, userId);
         if (newOffers.isEmpty()) {
-            log.info("There is not any new offers...");
+            log.info("There are not any new offers...");
         } else {
             log.info("Found {} new offers!", newOffers.size());
             log.info("Preparing new offers to send...");

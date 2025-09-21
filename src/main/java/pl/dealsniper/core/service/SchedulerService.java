@@ -29,19 +29,25 @@ public class SchedulerService {
     @Value("${app.config.scheduler-hour-interval}")
     private int schedulerInterval;
 
+    @Value("${app.config.tasks-per-user}")
+    private int userTasks;
+
+    private static final int DELAY_MULTIPLAYER = 120;
+    private static final int STAGGER_STEP = 30;
+
     private final TaskRepository taskRepository;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final CarDealOrchestrator orchestrator;
     private final Map<String, ScheduledFuture<?>> activeTasks = new ConcurrentHashMap<>();
-    private static final int DELAY_MULTIPLAYER = 120;
 
-    @Value("${app.config.tasks-per-user}")
-    private int userTasks;
 
     @EventListener(ApplicationReadyEvent.class)
     public void rescheduleActiveTasks() {
         List<Task> activeTasks = taskRepository.findAllActiveTasks();
-        activeTasks.forEach(task -> restoreActiveTasks(task.getUserId(), task.getSourceId(), task.getTaskName()));
+        for (int i = 0; i < activeTasks.size(); i++) {
+            Task task = activeTasks.get(i);
+            restoreActiveTasks(task.getUserId(), task.getSourceId(), task.getTaskName(), i);
+        }
     }
 
     public void startScheduledTask(UUID userId, Long sourceId, String taskName) {
@@ -108,7 +114,7 @@ public class SchedulerService {
         taskRepository.deactivateTask(userId, sourceId);
     }
 
-    private void restoreActiveTasks(UUID userId, Long sourceId, String taskName) {
+    private void restoreActiveTasks(UUID userId, Long sourceId, String taskName, int index) {
         String key = userId + ":" + sourceId;
         if (activeTasks.containsKey(key)) {
             log.info("Task already restored for {}", key);
@@ -121,10 +127,13 @@ public class SchedulerService {
                 log.error("Error scheduled task for {}:{}", userId, sourceId, e);
             }
         };
+        long delaySeconds = (long) (Math.random() * DELAY_MULTIPLAYER) + (long) index * STAGGER_STEP;
+        Instant startTime = Instant.now().plusSeconds(delaySeconds);
+
         ScheduledFuture<?> future =
-                taskScheduler.scheduleAtFixedRate(task, calculateInitialDelay(), getScheduleInterval());
+                taskScheduler.scheduleAtFixedRate(task, startTime, getScheduleInterval());
         activeTasks.put(key, future);
-        log.info("Restored task for {}", key);
+        log.info("Found active task for {}. Restoring...", key);
     }
 
     private Instant calculateInitialDelay() {

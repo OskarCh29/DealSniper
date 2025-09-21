@@ -22,6 +22,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
 
     @Override
     public List<CarDeal> getDeals(String platformUrl, Long sourceId) {
+        getRandomDelay();
         List<CarDeal> carDeals = new ArrayList<>();
 
         int page = 1;
@@ -75,6 +76,9 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
         BigDecimal price = new BigDecimal(textPrice);
 
         String offerCurrency = element.select(OtomotoSelector.OFFER_CURRENCY).text();
+        if (offerCurrency.isBlank()) {
+            offerCurrency = null;
+        }
 
         String offerUrl = element.select(OtomotoSelector.OFFER_URL).attr("href");
 

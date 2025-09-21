@@ -32,7 +32,6 @@ public class EmailService {
 
             Context context = new Context();
             context.setVariable("deals", offers);
-            // context.setVariable(sourceId) --> For future unsubscribe feature
 
             String htmlContent = templateEngine.process("car_deals_email.html", context);
             helper.setText(htmlContent, true);
