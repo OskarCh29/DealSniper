@@ -3,12 +3,12 @@ package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
 import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
+import static com.dealsniper.jooq.tables.ScheduledTasks.SCHEDULED_TASKS;
 import static com.dealsniper.jooq.tables.Sources.SOURCES;
 
 import com.dealsniper.jooq.tables.records.CarDealsRecord;
 import java.util.List;
 import java.util.UUID;
-import javax.swing.*;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -39,8 +39,12 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
     }
 
     @Override
-    public boolean existsByUrl(String offerUrl) {
-        return dsl.fetchExists(dsl.selectFrom(CAR_DEALS).where(CAR_DEALS.OFFER_URL.eq(offerUrl)));
+    public boolean existsByUserIdAndSourceId(UUID userId, Long sourceId) {
+        return dsl.fetchExists(dsl.selectFrom(CAR_DEALS)
+                .asTable()
+                .join(SOURCES)
+                .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
+                .where(SOURCES.USER_ID.eq(userId).and(CAR_DEALS.SOURCE_ID.eq(sourceId))));
     }
 
     @Override
@@ -114,6 +118,32 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                 .join(SOURCES)
                 .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
                 .where(SOURCES.USER_ID.eq(userId))
+                .and(CAR_DEALS.ACTIVE.isTrue())
+                .fetchInto(CarDealsRecord.class)
+                .stream()
+                .map(mapper::toDomainCarDeal)
+                .toList();
+    }
+
+    @Override
+    public List<CarDeal> findAllByUserIdAndTaskName(UUID userId, String taskName) {
+        return dsl
+                .select(
+                        CAR_DEALS.TITLE,
+                        CAR_DEALS.PRICE,
+                        CAR_DEALS.CURRENCY,
+                        CAR_DEALS.LOCATION,
+                        CAR_DEALS.MILEAGE,
+                        CAR_DEALS.YEAR,
+                        CAR_DEALS.OFFER_URL)
+                .from(SCHEDULED_TASKS)
+                .join(SOURCES)
+                .on(SCHEDULED_TASKS.SOURCE_ID.eq(SOURCES.ID))
+                .and(SCHEDULED_TASKS.USER_ID.eq(SOURCES.USER_ID))
+                .join(CAR_DEALS)
+                .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
+                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
+                .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
                 .and(CAR_DEALS.ACTIVE.isTrue())
                 .fetchInto(CarDealsRecord.class)
                 .stream()

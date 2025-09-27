@@ -19,7 +19,6 @@ import pl.dealsniper.core.service.CryptoService;
 import pl.dealsniper.core.service.EmailService;
 import pl.dealsniper.core.service.UserService;
 import pl.dealsniper.core.service.VerificationService;
-import pl.dealsniper.core.util.ResponseUtils;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -40,7 +39,7 @@ public class UserController {
         verificationService.deleteUsedVerification(verificationRequest.code());
         UserResponse userResponse = userMapper.toUserResponse(savedUser);
 
-        return ResponseUtils.created(userResponse, savedUser.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
     @PostMapping("/register")

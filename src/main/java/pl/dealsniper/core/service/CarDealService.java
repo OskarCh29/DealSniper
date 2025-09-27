@@ -46,6 +46,21 @@ public class CarDealService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<CarDeal> getUserActiveOffersByIdAndTaskName(UUID userId, String taskName) {
+        List<CarDeal> activeOffersByTaskName = carDealRepository.findAllByUserIdAndTaskName(userId, taskName);
+        if (activeOffersByTaskName.isEmpty()) {
+            throw new RecordNotFoundException("No offers found for provided name");
+        } else {
+            return activeOffersByTaskName;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkIfFirstScraping(UUID userId, Long sourceId) {
+        return carDealRepository.existsByUserIdAndSourceId(userId, sourceId);
+    }
+
     private void validateIfUserActiveAndExists(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RecordNotFoundException("User not found"));
         if (!user.getActive()) {

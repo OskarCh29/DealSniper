@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.dto.request.SourceRequest;
+import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.exception.UserInactiveException;
@@ -69,6 +70,14 @@ public class SourceService {
     @Transactional(readOnly = true)
     public Optional<Source> getSourceByUserIdAndURL(UUID userId, String filterUrl) {
         return sourceRepository.findByUserIdAndFilterUrl(userId, filterUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public SourceResponse findSourceById(Long id) {
+        return sourceRepository
+                .findById(id)
+                .map(sourceMapper::toSourceResponse)
+                .orElseThrow(() -> new RecordNotFoundException("Source with provided id does not exists"));
     }
 
     private void ensureUserActiveAndExists(UUID userId) {

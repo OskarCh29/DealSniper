@@ -9,7 +9,7 @@ import pl.dealsniper.core.model.BaseDeal;
 public interface CarDealRepository<T extends BaseDeal> {
     void save(T deal);
 
-    boolean existsByUrl(String offerUrl);
+    boolean existsByUserIdAndSourceId(UUID userId, Long sourceId);
 
     void mergeFromTempTable();
 
@@ -18,4 +18,6 @@ public interface CarDealRepository<T extends BaseDeal> {
     boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId);
 
     List<T> findAllByUserId(UUID userId);
+
+    List<T> findAllByUserIdAndTaskName(UUID userId, String taskName);
 }

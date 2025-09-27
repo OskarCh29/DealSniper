@@ -1,6 +1,12 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +19,6 @@ import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.repository.TaskRepository;
 import pl.dealsniper.core.scheduler.ManagedTask;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -104,7 +103,6 @@ public class SchedulerService {
         }
         task.resume();
         taskRepository.activateTask(userId, taskName);
-
     }
 
     private ManagedTask createManagedTask(UUID userId, Long sourceId, String taskName) {
@@ -160,5 +158,4 @@ public class SchedulerService {
     private String getTaskKey(UUID userId, Long sourceId) {
         return userId + ":" + sourceId;
     }
-
 }
