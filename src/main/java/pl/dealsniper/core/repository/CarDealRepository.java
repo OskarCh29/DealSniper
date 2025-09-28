@@ -1,10 +1,9 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository;
 
+import java.util.UUID;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.model.BaseDeal;
-
-import java.util.UUID;
 
 public interface CarDealRepository<T extends BaseDeal> {
     void save(T deal);

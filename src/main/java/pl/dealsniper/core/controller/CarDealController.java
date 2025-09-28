@@ -1,6 +1,7 @@
 /* (C) 2025 */
 package pl.dealsniper.core.controller;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +14,6 @@ import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.service.CarDealOrchestrator;
 import pl.dealsniper.core.service.CarDealService;
-
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor

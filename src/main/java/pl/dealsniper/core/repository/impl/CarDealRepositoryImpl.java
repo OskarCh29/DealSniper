@@ -1,7 +1,14 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
+import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
+import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
+import static com.dealsniper.jooq.tables.ScheduledTasks.SCHEDULED_TASKS;
+import static com.dealsniper.jooq.tables.Sources.SOURCES;
+
 import com.dealsniper.jooq.tables.records.CarDealsRecord;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -10,14 +17,6 @@ import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.repository.CarDealRepository;
-
-import java.util.List;
-import java.util.UUID;
-
-import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
-import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
-import static com.dealsniper.jooq.tables.ScheduledTasks.SCHEDULED_TASKS;
-import static com.dealsniper.jooq.tables.Sources.SOURCES;
 
 @Repository
 @RequiredArgsConstructor
@@ -139,7 +138,7 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
     public PageResponse<CarDeal> findAllByUserIdAndTaskName(UUID userId, String taskName, int page, int size) {
         int offset = page * size;
 
-        List<CarDeal> offers =  dsl
+        List<CarDeal> offers = dsl
                 .select(
                         CAR_DEALS.TITLE,
                         CAR_DEALS.PRICE,

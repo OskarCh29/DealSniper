@@ -1,6 +1,8 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +16,6 @@ import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
 import pl.dealsniper.core.repository.impl.CarDealRepositoryImpl;
 import pl.dealsniper.core.repository.impl.CarDealTempRepositoryImpl;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +58,10 @@ public class CarDealService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CarDealResponse> getUserActiveOffersByIdAndTaskName(UUID userId, String taskName, int page, int size) {
-        PageResponse<CarDeal> activeOffersByTaskName = carDealRepository.findAllByUserIdAndTaskName(userId, taskName, page, size);
+    public PageResponse<CarDealResponse> getUserActiveOffersByIdAndTaskName(
+            UUID userId, String taskName, int page, int size) {
+        PageResponse<CarDeal> activeOffersByTaskName =
+                carDealRepository.findAllByUserIdAndTaskName(userId, taskName, page, size);
         if (activeOffersByTaskName.content().isEmpty()) {
             throw new RecordNotFoundException("No offers found for provided name");
         }
