@@ -1,10 +1,10 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository;
 
-import java.util.List;
-import java.util.UUID;
-import javax.swing.*;
+import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.model.BaseDeal;
+
+import java.util.UUID;
 
 public interface CarDealRepository<T extends BaseDeal> {
     void save(T deal);
@@ -17,7 +17,7 @@ public interface CarDealRepository<T extends BaseDeal> {
 
     boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId);
 
-    List<T> findAllByUserId(UUID userId);
+    PageResponse<T> findAllByUserId(UUID userId, int page, int size);
 
-    List<T> findAllByUserIdAndTaskName(UUID userId, String taskName);
+    PageResponse<T> findAllByUserIdAndTaskName(UUID userId, String taskName, int page, int size);
 }

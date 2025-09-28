@@ -1,18 +1,22 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dealsniper.core.dto.response.CarDealResponse;
+import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.UserInactiveException;
+import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
 import pl.dealsniper.core.repository.impl.CarDealRepositoryImpl;
 import pl.dealsniper.core.repository.impl.CarDealTempRepositoryImpl;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class CarDealService {
     private final CarDealRepositoryImpl carDealRepository;
     private final CarDealTempRepositoryImpl tempDealRepository;
     private final UserRepository userRepository;
+    private final CarDealMapper carDealMapper;
 
     @Transactional
     public void mergeTempTableAndDeleteInactive() {
@@ -37,23 +42,36 @@ public class CarDealService {
     }
 
     @Transactional(readOnly = true)
-    public List<CarDeal> getUserActiveOffers(UUID userId) {
-        List<CarDeal> activeOffers = carDealRepository.findAllByUserId(userId);
-        if (activeOffers.isEmpty()) {
+    public PageResponse<CarDealResponse> getUserActiveOffers(UUID userId, int page, int size) {
+        PageResponse<CarDeal> activeOffers = carDealRepository.findAllByUserId(userId, page, size);
+        if (activeOffers.content().isEmpty()) {
             throw new RecordNotFoundException("No offers found for provided user");
-        } else {
-            return activeOffers;
         }
+
+        List<CarDealResponse> responses = activeOffers.content().stream()
+                .map(carDealMapper::toCarDealResponse)
+                .toList();
+        return PageResponse.<CarDealResponse>builder()
+                .content(responses)
+                .page(page)
+                .size(size)
+                .build();
     }
 
     @Transactional(readOnly = true)
-    public List<CarDeal> getUserActiveOffersByIdAndTaskName(UUID userId, String taskName) {
-        List<CarDeal> activeOffersByTaskName = carDealRepository.findAllByUserIdAndTaskName(userId, taskName);
-        if (activeOffersByTaskName.isEmpty()) {
+    public PageResponse<CarDealResponse> getUserActiveOffersByIdAndTaskName(UUID userId, String taskName, int page, int size) {
+        PageResponse<CarDeal> activeOffersByTaskName = carDealRepository.findAllByUserIdAndTaskName(userId, taskName, page, size);
+        if (activeOffersByTaskName.content().isEmpty()) {
             throw new RecordNotFoundException("No offers found for provided name");
-        } else {
-            return activeOffersByTaskName;
         }
+        List<CarDealResponse> responses = activeOffersByTaskName.content().stream()
+                .map(carDealMapper::toCarDealResponse)
+                .toList();
+        return PageResponse.<CarDealResponse>builder()
+                .content(responses)
+                .page(page)
+                .size(size)
+                .build();
     }
 
     @Transactional(readOnly = true)
