@@ -3,16 +3,20 @@ package pl.dealsniper.core.repository.impl;
 
 import static com.dealsniper.jooq.tables.CarDeals.CAR_DEALS;
 import static com.dealsniper.jooq.tables.CarDealsTmp.CAR_DEALS_TMP;
-import static com.dealsniper.jooq.tables.ScheduledTasks.SCHEDULED_TASKS;
 import static com.dealsniper.jooq.tables.Sources.SOURCES;
 
 import com.dealsniper.jooq.tables.records.CarDealsRecord;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
+import pl.dealsniper.core.dto.request.CarDealFilter;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.model.CarDeal;
@@ -135,8 +139,23 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
     }
 
     @Override
-    public PageResponse<CarDeal> findAllByUserIdAndTaskName(UUID userId, String taskName, int page, int size) {
+    public PageResponse<CarDeal> findAllByUserIdAndFilter(UUID userId, CarDealFilter filter, int page, int size) {
         int offset = page * size;
+        List<Supplier<Condition>> suppliers = new ArrayList<>();
+
+        suppliers.add(() -> SOURCES.USER_ID.eq(userId));
+
+        addIfPresent(suppliers, filter.title(), t -> CAR_DEALS.TITLE.likeIgnoreCase("%" + t + "%"));
+        addIfPresent(suppliers, filter.minPrice(), CAR_DEALS.PRICE::ge);
+        addIfPresent(suppliers, filter.maxPrice(), CAR_DEALS.PRICE::le);
+        addIfPresent(suppliers, filter.minYear(), CAR_DEALS.YEAR::ge);
+        addIfPresent(suppliers, filter.maxYear(), CAR_DEALS.YEAR::le);
+        addIfPresent(suppliers, filter.location(), CAR_DEALS.LOCATION::eq);
+
+        Condition condition = suppliers.stream()
+                .map(Supplier::get)
+                .reduce(DSL.trueCondition(), Condition::and)
+                .and(CAR_DEALS.ACTIVE.isTrue());
 
         List<CarDeal> offers = dsl
                 .select(
@@ -147,15 +166,10 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                         CAR_DEALS.MILEAGE,
                         CAR_DEALS.YEAR,
                         CAR_DEALS.OFFER_URL)
-                .from(SCHEDULED_TASKS)
-                .join(SOURCES)
-                .on(SCHEDULED_TASKS.SOURCE_ID.eq(SOURCES.ID))
-                .and(SCHEDULED_TASKS.USER_ID.eq(SOURCES.USER_ID))
+                .from(SOURCES)
                 .join(CAR_DEALS)
                 .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
-                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
-                .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
-                .and(CAR_DEALS.ACTIVE.isTrue())
+                .where(condition)
                 .limit(size)
                 .offset(offset)
                 .fetchInto(CarDealsRecord.class)
@@ -167,5 +181,11 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                 .page(page)
                 .size(size)
                 .build();
+    }
+
+    private <T> void addIfPresent(List<Supplier<Condition>> suppliers, T value, Function<T, Condition> mapper) {
+        if (value != null) {
+            suppliers.add(() -> mapper.apply(value));
+        }
     }
 }

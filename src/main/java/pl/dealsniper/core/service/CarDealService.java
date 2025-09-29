@@ -6,6 +6,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dealsniper.core.dto.request.CarDealFilter;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.exception.RecordNotFoundException;
@@ -41,27 +42,10 @@ public class CarDealService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CarDealResponse> getUserActiveOffers(UUID userId, int page, int size) {
-        PageResponse<CarDeal> activeOffers = carDealRepository.findAllByUserId(userId, page, size);
-        if (activeOffers.content().isEmpty()) {
-            throw new RecordNotFoundException("No offers found for provided user");
-        }
-
-        List<CarDealResponse> responses = activeOffers.content().stream()
-                .map(carDealMapper::toCarDealResponse)
-                .toList();
-        return PageResponse.<CarDealResponse>builder()
-                .content(responses)
-                .page(page)
-                .size(size)
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    public PageResponse<CarDealResponse> getUserActiveOffersByIdAndTaskName(
-            UUID userId, String taskName, int page, int size) {
+    public PageResponse<CarDealResponse> getUserActiveOffersByFilter(
+            UUID userId, CarDealFilter dealFilter, int page, int size) {
         PageResponse<CarDeal> activeOffersByTaskName =
-                carDealRepository.findAllByUserIdAndTaskName(userId, taskName, page, size);
+                carDealRepository.findAllByUserIdAndFilter(userId, dealFilter, page, size);
         if (activeOffersByTaskName.content().isEmpty()) {
             throw new RecordNotFoundException("No offers found for provided name");
         }

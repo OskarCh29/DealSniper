@@ -5,10 +5,12 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.dealsniper.core.dto.request.CarDealFilter;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
@@ -27,10 +29,11 @@ public class CarDealController {
     @GetMapping(value = "/{userId}/offers", headers = "Offers=email")
     ResponseEntity<?> sendActiveOffers(
             @PathVariable UUID userId,
+            @ModelAttribute CarDealFilter dealFilter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        orchestrator.sendActiveOffersToUser(userId, page, size);
+        orchestrator.sendActiveOffersToUserBasedOnFilter(userId, dealFilter, page, size);
 
         return ResponseEntity.ok().build();
     }
@@ -38,10 +41,12 @@ public class CarDealController {
     @GetMapping("/{userId}/offers")
     ResponseEntity<PageResponse<CarDealResponse>> getUserActiveOffers(
             @PathVariable UUID userId,
+            @ModelAttribute CarDealFilter dealFilter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PageResponse<CarDealResponse> response = carDealService.getUserActiveOffers(userId, page, size);
+        PageResponse<CarDealResponse> response =
+                carDealService.getUserActiveOffersByFilter(userId, dealFilter, page, size);
 
         return ResponseEntity.ok(response);
     }

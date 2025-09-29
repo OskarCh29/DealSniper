@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dealsniper.core.dto.request.CarDealFilter;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.model.CarDeal;
@@ -34,8 +35,9 @@ public class CarDealOrchestrator {
         persistScrapedOffers(source.getUserId(), scrapedOffers, taskName);
     }
 
-    public void sendActiveOffersToUser(UUID userId, int page, int size) {
-        PageResponse<CarDealResponse> deals = carDealService.getUserActiveOffers(userId, page, size);
+    public void sendActiveOffersToUserBasedOnFilter(UUID userId, CarDealFilter dealFilter, int page, int size) {
+        PageResponse<CarDealResponse> deals =
+                carDealService.getUserActiveOffersByFilter(userId, dealFilter, page, size);
         User user = userService.getUserById(userId);
         emailService.sendUserActiveOffers(user.getEmail(), deals.content());
     }
