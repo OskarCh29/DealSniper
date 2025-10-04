@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import lombok.Builder;
 
 @Builder
-public record CarDealFilter(
+public record CarDealFilterRequest(
         String title,
         BigDecimal minPrice,
         BigDecimal maxPrice,

@@ -16,7 +16,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
-import pl.dealsniper.core.dto.request.CarDealFilter;
+import pl.dealsniper.core.dto.request.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.model.CarDeal;
@@ -139,7 +139,8 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
     }
 
     @Override
-    public PageResponse<CarDeal> findAllByUserIdAndFilter(UUID userId, CarDealFilter filter, int page, int size) {
+    public PageResponse<CarDeal> findAllByUserIdAndFilter(
+            UUID userId, CarDealFilterRequest filter, int page, int size) {
         int offset = page * size;
         List<Supplier<Condition>> suppliers = new ArrayList<>();
 
@@ -151,6 +152,8 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
         addIfPresent(suppliers, filter.minYear(), CAR_DEALS.YEAR::ge);
         addIfPresent(suppliers, filter.maxYear(), CAR_DEALS.YEAR::le);
         addIfPresent(suppliers, filter.location(), CAR_DEALS.LOCATION::eq);
+        addIfPresent(suppliers, filter.minMileage(), CAR_DEALS.MILEAGE::ge);
+        addIfPresent(suppliers, filter.maxMileage(), CAR_DEALS.MILEAGE::le);
 
         Condition condition = suppliers.stream()
                 .map(Supplier::get)

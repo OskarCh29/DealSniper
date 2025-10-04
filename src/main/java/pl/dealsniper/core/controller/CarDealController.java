@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.dealsniper.core.dto.request.CarDealFilter;
+import pl.dealsniper.core.dto.request.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
@@ -29,7 +29,7 @@ public class CarDealController {
     @GetMapping(value = "/{userId}/offers", headers = "Offers=email")
     ResponseEntity<?> sendActiveOffers(
             @PathVariable UUID userId,
-            @ModelAttribute CarDealFilter dealFilter,
+            @ModelAttribute CarDealFilterRequest dealFilter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -41,7 +41,7 @@ public class CarDealController {
     @GetMapping("/{userId}/offers")
     ResponseEntity<PageResponse<CarDealResponse>> getUserActiveOffers(
             @PathVariable UUID userId,
-            @ModelAttribute CarDealFilter dealFilter,
+            @ModelAttribute CarDealFilterRequest dealFilter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 

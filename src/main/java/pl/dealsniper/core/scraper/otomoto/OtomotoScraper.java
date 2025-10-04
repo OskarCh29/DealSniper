@@ -86,7 +86,8 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
         int locationEndingIndex = fullLocation.indexOf(")");
         String location = fullLocation.substring(0, locationEndingIndex + 1);
 
-        String mileage = element.select(OtomotoSelector.OFFER_MILEAGE).text();
+        String rawMileage = element.select(OtomotoSelector.OFFER_MILEAGE).text();
+        Integer mileage = Integer.parseInt(rawMileage.replaceAll("\\D+", ""));
 
         Integer year = Integer.parseInt(
                 element.select(OtomotoSelector.OFFER_PRODUCTION_YEAR).text());
