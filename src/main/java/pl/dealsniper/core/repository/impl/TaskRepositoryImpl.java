@@ -39,6 +39,14 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public boolean existsInactiveTaskByNameAndUserId(String taskName, UUID userId) {
+        return dsl.fetchExists(dsl.selectFrom(SCHEDULED_TASKS)
+                .where(SCHEDULED_TASKS.ACTIVE.eq(false))
+                .and(SCHEDULED_TASKS.USER_ID.eq(userId))
+                .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName)));
+    }
+
+    @Override
     public Task save(Task task) {
         ScheduledTasksRecord record = mapper.toJooqRecord(task);
         ScheduledTasksRecord savedRecord = dsl.insertInto(SCHEDULED_TASKS)

@@ -33,7 +33,7 @@ public class CarDealController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        orchestrator.sendActiveOffersToUserBasedOnFilter(userId, dealFilter, page, size);
+        orchestrator.sendActiveOffersToUserBasedOnFilter(userId, dealFilter, true, page, size);
 
         return ResponseEntity.ok().build();
     }
@@ -46,8 +46,33 @@ public class CarDealController {
             @RequestParam(defaultValue = "10") int size) {
 
         PageResponse<CarDealResponse> response =
-                carDealService.getUserActiveOffersByFilter(userId, dealFilter, page, size);
+                carDealService.getUserOffersByFilter(userId, dealFilter, true, page, size);
 
         return ResponseEntity.ok(response);
+    }
+    /// To be corrected with handling inactive
+    @GetMapping("/{userId}/report")
+    ResponseEntity<PageResponse<CarDealResponse>> getUserHistoryOffers(
+            @PathVariable UUID userId,
+            @ModelAttribute CarDealFilterRequest dealFilterRequest,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PageResponse<CarDealResponse> response =
+                carDealService.getUserOffersByFilter(userId, dealFilterRequest, false, page, size);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/{userId}/report", headers = "email")
+    ResponseEntity<PageResponse<CarDealResponse>> sendHistoryReport(
+            @PathVariable UUID userId,
+            @ModelAttribute CarDealFilterRequest dealFilterRequest,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        orchestrator.sendActiveOffersToUserBasedOnFilter(userId, dealFilterRequest, false, page, size);
+
+        return ResponseEntity.ok().build();
     }
 }

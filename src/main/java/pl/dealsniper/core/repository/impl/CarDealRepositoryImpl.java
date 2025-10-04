@@ -140,7 +140,7 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
 
     @Override
     public PageResponse<CarDeal> findAllByUserIdAndFilter(
-            UUID userId, CarDealFilterRequest filter, int page, int size) {
+            UUID userId, CarDealFilterRequest filter, boolean currentActiveRecords, int page, int size) {
         int offset = page * size;
         List<Supplier<Condition>> suppliers = new ArrayList<>();
 
@@ -158,7 +158,7 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
         Condition condition = suppliers.stream()
                 .map(Supplier::get)
                 .reduce(DSL.trueCondition(), Condition::and)
-                .and(CAR_DEALS.ACTIVE.isTrue());
+                .and(CAR_DEALS.ACTIVE.eq(currentActiveRecords));
 
         List<CarDeal> offers = dsl
                 .select(

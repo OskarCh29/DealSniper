@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.exception.ResourceUsedException;
+import pl.dealsniper.core.exception.ScheduledTaskException;
 import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.repository.TaskRepository;
 import pl.dealsniper.core.scheduler.ManagedTask;
@@ -89,11 +91,13 @@ public class SchedulerService {
             stopTask(userId, sourceId);
         } else {
             log.info("Task {} was not running", key);
+            throw new ScheduledTaskException("Requested task was not running");
         }
     }
 
     public void resumeInactiveTask(UUID userId, Long sourceId, String taskName) {
         String key = getTaskKey(userId, sourceId);
+        validateTaskResumable(userId, taskName, key);
         checkIfUserCanStartNewTask(userId);
 
         ManagedTask task = activeTasks.get(key);
@@ -151,11 +155,27 @@ public class SchedulerService {
         return Instant.now().plusSeconds(randomDelay);
     }
 
+    private String getTaskKey(UUID userId, Long sourceId) {
+        return userId + ":" + sourceId;
+    }
+
+    private void validateTaskResumable(UUID userId, String taskName, String key) {
+        validate(
+                !checkIfTaskAlreadyRunning(key),
+                () -> new ScheduledTaskException("Task '" + taskName + "' is already running and cannot be resumed"));
+
+        validate(
+                taskRepository.existsInactiveTaskByNameAndUserId(taskName, userId),
+                () -> new ScheduledTaskException("Task '" + taskName + "' does not exist and cannot be resumed"));
+    }
+
     private boolean checkIfTaskAlreadyRunning(String key) {
         return activeTasks.containsKey(key) && activeTasks.get(key).isRunning();
     }
 
-    private String getTaskKey(UUID userId, Long sourceId) {
-        return userId + ":" + sourceId;
+    private void validate(boolean condition, Supplier<? extends RuntimeException> exceptionSupplier) {
+        if (!condition) {
+            throw exceptionSupplier.get();
+        }
     }
 }

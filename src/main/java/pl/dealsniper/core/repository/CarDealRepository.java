@@ -19,5 +19,6 @@ public interface CarDealRepository<T extends BaseDeal> {
 
     PageResponse<T> findAllByUserId(UUID userId, int page, int size);
 
-    PageResponse<T> findAllByUserIdAndFilter(UUID userId, CarDealFilterRequest filter, int page, int size);
+    PageResponse<T> findAllByUserIdAndFilter(
+            UUID userId, CarDealFilterRequest filter, boolean currentActiveRecords, int page, int size);
 }

@@ -42,14 +42,12 @@ public class CarDealService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CarDealResponse> getUserActiveOffersByFilter(
-            UUID userId, CarDealFilterRequest dealFilter, int page, int size) {
-        PageResponse<CarDeal> activeOffersByTaskName =
-                carDealRepository.findAllByUserIdAndFilter(userId, dealFilter, page, size);
-        if (activeOffersByTaskName.content().isEmpty()) {
-            throw new RecordNotFoundException("No offers found for provided name");
-        }
-        List<CarDealResponse> responses = activeOffersByTaskName.content().stream()
+    public PageResponse<CarDealResponse> getUserOffersByFilter(
+            UUID userId, CarDealFilterRequest dealFilter, boolean currentActiveRecords, int page, int size) {
+        PageResponse<CarDeal> offersByFilter =
+                carDealRepository.findAllByUserIdAndFilter(userId, dealFilter, currentActiveRecords, page, size);
+        handleEmptyPageResult(offersByFilter.content());
+        List<CarDealResponse> responses = offersByFilter.content().stream()
                 .map(carDealMapper::toCarDealResponse)
                 .toList();
         return PageResponse.<CarDealResponse>builder()
@@ -68,6 +66,12 @@ public class CarDealService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RecordNotFoundException("User not found"));
         if (!user.getActive()) {
             throw new UserInactiveException("User not active");
+        }
+    }
+
+    private void handleEmptyPageResult(List<CarDeal> responses) {
+        if (responses.isEmpty()) {
+            throw new RecordNotFoundException("No offers found for provided filters");
         }
     }
 }

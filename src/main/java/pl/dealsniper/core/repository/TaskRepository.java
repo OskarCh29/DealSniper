@@ -18,4 +18,6 @@ public interface TaskRepository {
     void deactivateTask(UUID userId, Long sourceId);
 
     void activateTask(UUID userId, String taskName);
+
+    boolean existsInactiveTaskByNameAndUserId(String taskName, UUID userId);
 }
