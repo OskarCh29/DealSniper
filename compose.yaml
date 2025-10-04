@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:17.5
     container_name: dealsniper-db
+    restart: unless-stopped
     ports:
       - '5432:5432'
-    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -32,6 +32,3 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
-
-
-

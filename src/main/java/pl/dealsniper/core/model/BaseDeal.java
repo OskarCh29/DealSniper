@@ -1,10 +1,10 @@
+/* (C) 2025 */
 package pl.dealsniper.core.model;
 
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -20,4 +20,6 @@ public abstract class BaseDeal {
     private String currency;
 
     private String offerUrl;
+
+    private Long sourceId;
 }

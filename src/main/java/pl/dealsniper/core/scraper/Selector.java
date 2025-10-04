@@ -1,3 +1,4 @@
+/* (C) 2025 */
 package pl.dealsniper.core.scraper;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ public abstract class Selector {
 
     public static final String LANGUAGE_HEADER = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
 
-    public static final int REQUEST_TIMEOUT = 10000;
+    public static final int REQUEST_TIMEOUT = 30000;
 
     public static final int MAX_OFFER_RESULT = 100;
 
@@ -22,8 +23,7 @@ public abstract class Selector {
             "https://www.google.com/",
             "https://www.bing.com/",
             "https://www.yahoo.com/",
-            "https://www.duckduckgo.com/"
-    );
+            "https://www.duckduckgo.com/");
     private static final Random RANDOM = new Random();
 
     public static String getRandomUserAgent() {
