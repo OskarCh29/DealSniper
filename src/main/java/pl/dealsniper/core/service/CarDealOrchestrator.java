@@ -35,12 +35,12 @@ public class CarDealOrchestrator {
         persistScrapedOffers(source.getUserId(), scrapedOffers, taskName);
     }
 
-    public void sendActiveOffersToUserBasedOnFilter(
+    public void sendOffersToUserBasedOnFilter(
             UUID userId, CarDealFilterRequest dealFilter, boolean currentActiveRecords, int page, int size) {
         PageResponse<CarDealResponse> deals =
                 carDealService.getUserOffersByFilter(userId, dealFilter, currentActiveRecords, page, size);
         User user = userService.getUserById(userId);
-        emailService.sendUserActiveOffers(user.getEmail(), deals.content());
+        emailService.sendUserFilterOffers(user.getEmail(), deals.content());
     }
 
     @Transactional

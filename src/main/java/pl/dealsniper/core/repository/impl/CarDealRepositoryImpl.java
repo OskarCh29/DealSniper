@@ -169,8 +169,8 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                         CAR_DEALS.MILEAGE,
                         CAR_DEALS.YEAR,
                         CAR_DEALS.OFFER_URL)
-                .from(SOURCES)
-                .join(CAR_DEALS)
+                .from(CAR_DEALS)
+                .join(SOURCES)
                 .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
                 .where(condition)
                 .limit(size)
