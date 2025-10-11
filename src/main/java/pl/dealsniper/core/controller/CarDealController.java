@@ -2,6 +2,8 @@
 package pl.dealsniper.core.controller;
 
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +26,11 @@ public class CarDealController {
 
     private final CarDealOrchestrator orchestrator;
     private final CarDealService carDealService;
-    private final CarDealMapper carDealMapper;
 
     @GetMapping(value = "/{userId}/offers", headers = "Offers=email")
     ResponseEntity<?> sendActiveOffers(
             @PathVariable UUID userId,
-            @ModelAttribute CarDealFilterRequest dealFilter,
+            @Valid @ModelAttribute CarDealFilterRequest dealFilter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -41,7 +42,7 @@ public class CarDealController {
     @GetMapping("/{userId}/offers")
     ResponseEntity<PageResponse<CarDealResponse>> getUserActiveOffers(
             @PathVariable UUID userId,
-            @ModelAttribute CarDealFilterRequest dealFilter,
+            @Valid @ModelAttribute CarDealFilterRequest dealFilter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -54,7 +55,7 @@ public class CarDealController {
     @GetMapping("/{userId}/report")
     ResponseEntity<PageResponse<CarDealResponse>> getUserHistoryOffers(
             @PathVariable UUID userId,
-            @ModelAttribute CarDealFilterRequest dealFilterRequest,
+            @Valid @ModelAttribute CarDealFilterRequest dealFilterRequest,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -67,7 +68,7 @@ public class CarDealController {
     @GetMapping(value = "/{userId}/report", headers = "Offers=email")
     ResponseEntity<PageResponse<CarDealResponse>> sendHistoryReport(
             @PathVariable UUID userId,
-            @ModelAttribute CarDealFilterRequest dealFilterRequest,
+            @Valid @ModelAttribute CarDealFilterRequest dealFilterRequest,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
