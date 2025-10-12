@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.dealsniper.core.dto.request.SourceRequest;
+import pl.dealsniper.core.dto.request.source.SourceRequest;
 import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;

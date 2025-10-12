@@ -17,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.dealsniper.core.dto.request.SourceRequest;
+import pl.dealsniper.core.dto.request.source.SourceRequest;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;

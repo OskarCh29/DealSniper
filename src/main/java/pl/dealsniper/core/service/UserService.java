@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dealsniper.core.dto.request.UserRequest;
+import pl.dealsniper.core.dto.request.user.UserRequest;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.exception.UserInactiveException;

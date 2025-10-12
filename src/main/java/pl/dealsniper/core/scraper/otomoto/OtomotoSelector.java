@@ -7,7 +7,7 @@ public final class OtomotoSelector extends Selector {
 
     private OtomotoSelector() {}
 
-    public static final String OFFER_ID = "article[data-id]";
+    public static final String OFFER_SELECTOR = "article[data-id]";
 
     public static final String OFFER_TITLE = "article[data-id] h2";
 

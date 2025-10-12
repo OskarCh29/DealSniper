@@ -9,7 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.configuration.ApplicationProperties;
-import pl.dealsniper.core.dto.request.VerificationRequest;
+import pl.dealsniper.core.dto.request.user.VerificationRequest;
 import pl.dealsniper.core.exception.VerificationCodeException;
 import pl.dealsniper.core.model.Verification;
 import pl.dealsniper.core.repository.VerificationRepository;

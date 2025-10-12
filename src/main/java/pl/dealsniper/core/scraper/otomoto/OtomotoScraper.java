@@ -34,7 +34,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
             while (morePages && carDeals.size() < OtomotoSelector.MAX_OFFER_RESULT) {
                 String pageUrl = buildPageUrl(platformUrl, page);
 
-                Elements listings = generateUrlRequest(pageUrl, OtomotoSelector.OFFER_ID);
+                Elements listings = generateUrlRequest(pageUrl, OtomotoSelector.OFFER_SELECTOR);
 
                 log.info("Found {} offers on {} page", listings.size(), page);
 
