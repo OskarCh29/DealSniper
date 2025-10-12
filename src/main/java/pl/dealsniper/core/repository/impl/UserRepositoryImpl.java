@@ -15,13 +15,11 @@ import pl.dealsniper.core.exception.InsertFailedException;
 import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
-import pl.dealsniper.core.service.CryptoService;
+import pl.dealsniper.core.util.CryptoUtil;
 
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
-
-    private final CryptoService cryptoService;
 
     private final DSLContext dsl;
 
@@ -70,7 +68,7 @@ public class UserRepositoryImpl implements UserRepository {
                         USERS.EMAIL,
                         DSL.concat(
                                 DSL.inline("deleted_user_"), USERS.ID.cast(String.class), DSL.inline("@example.com")))
-                .set(USERS.PASSWORD, cryptoService.getRandomHash())
+                .set(USERS.PASSWORD, CryptoUtil.getRandomHash())
                 .set(USERS.ACTIVE, false)
                 .set(USERS.DELETED_AT, LocalDateTime.now())
                 .where(USERS.ID.eq(userId))

@@ -1,25 +1,18 @@
 /* (C) 2025 */
 package pl.dealsniper.core.dto.request;
 
-import java.math.BigDecimal;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+import java.math.BigDecimal;
 import lombok.Builder;
 
 @Builder
 public record CarDealFilterRequest(
         String title,
-        @Min(0)
-        BigDecimal minPrice,
-        @Positive
-        BigDecimal maxPrice,
-        @Min(1900)
-        Integer minYear,
-        @Positive
-        Integer maxYear,
+        @Min(0) BigDecimal minPrice,
+        @Positive BigDecimal maxPrice,
+        @Min(1900) Integer minYear,
+        @Positive Integer maxYear,
         String location,
-        @Min(0)
-        Integer minMileage,
-        @Positive
-        Integer maxMileage) {}
+        @Min(0) Integer minMileage,
+        @Positive Integer maxMileage) {}

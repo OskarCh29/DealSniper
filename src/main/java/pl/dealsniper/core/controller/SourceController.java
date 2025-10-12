@@ -17,7 +17,7 @@ import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
 import pl.dealsniper.core.service.SourceService;
-import pl.dealsniper.core.util.ResponseUtils;
+import pl.dealsniper.core.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api/v1/sources")
@@ -31,7 +31,7 @@ public class SourceController {
     ResponseEntity<SourceResponse> registerNewSource(@Valid @RequestBody SourceRequest sourceRequest) {
         Source source = sourceService.saveUserSource(sourceRequest);
         SourceResponse response = sourceMapper.toSourceResponse(source);
-        return ResponseUtils.created(response, source.getId());
+        return ResponseUtil.created(response, response.id());
     }
 
     @DeleteMapping("/{sourceId}")
