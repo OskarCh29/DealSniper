@@ -1,11 +1,12 @@
 /* (C) 2025 */
 package pl.dealsniper.core.dto.request.source;
 
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public record UrlSourceRequest(
-        String brand,
-        String model,
+        @NotNull(message = "Car brand is missing") String brand,
+        @NotNull(message = "Car model is missing") String model,
         BigDecimal minPrice,
         BigDecimal maxPrice,
         Integer minYear,

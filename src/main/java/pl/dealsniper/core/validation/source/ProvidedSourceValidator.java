@@ -15,6 +15,5 @@ public class ProvidedSourceValidator implements ConstraintValidator<ProvidedSour
     }
 
     @Override
-    public void initialize(ProvidedSource constraintAnnotation) {
-    }
+    public void initialize(ProvidedSource constraintAnnotation) {}
 }
