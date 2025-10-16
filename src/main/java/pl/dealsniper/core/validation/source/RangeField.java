@@ -14,10 +14,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = RangeFieldsValidator.class)
 @Documented
-@Repeatable(RangeFields.List.class)
-public @interface RangeFields {
+@Repeatable(RangeFieldDataTypes.class)
+public @interface RangeField {
 
-    String message() default "";
+    String message() default "Provided {min} or {max} is not in proper range";
 
     String min();
 
@@ -26,11 +26,4 @@ public @interface RangeFields {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    @interface List {
-        RangeFields[] value();
-    }
 }

@@ -3,16 +3,16 @@ package pl.dealsniper.core.validation.source;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-public class RangeFieldsValidator implements ConstraintValidator<RangeFields, Object> {
+public class RangeFieldsValidator implements ConstraintValidator<RangeField, Object> {
 
     private String minField;
     private String maxField;
     private String message;
 
     @Override
-    public void initialize(RangeFields constraintAnnotation) {
+    public void initialize(RangeField constraintAnnotation) {
         this.maxField = constraintAnnotation.max();
         this.minField = constraintAnnotation.min();
         this.message = constraintAnnotation.message();
@@ -33,10 +33,8 @@ public class RangeFieldsValidator implements ConstraintValidator<RangeFields, Ob
                 getDetailedMessage(minField, maxField, context);
                 return false;
             }
-            Comparable<Object> minComparable = (Comparable) minValue;
-            Comparable<Object> maxComparable = (Comparable) maxValue;
 
-            if (minComparable.compareTo(maxComparable) > 0) {
+            if ((((Comparable) minValue).compareTo(maxValue)) > 0) {
                 getDetailedMessage(minField, maxField, context);
                 return false;
             }
@@ -49,9 +47,8 @@ public class RangeFieldsValidator implements ConstraintValidator<RangeFields, Ob
     }
 
     private Object getFieldValue(Object object, String fieldName) throws Exception {
-        Field field = object.getClass().getField(fieldName);
-        field.setAccessible(true);
-        return field.get(object);
+        Method method = object.getClass().getMethod(fieldName);
+        return method.invoke(object);
     }
 
     private void getDetailedMessage(String minField, String maxField, ConstraintValidatorContext context) {
