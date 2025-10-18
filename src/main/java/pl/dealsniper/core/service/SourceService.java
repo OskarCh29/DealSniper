@@ -6,7 +6,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dealsniper.core.dto.request.source.SourceRequest;
 import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;
@@ -26,11 +25,10 @@ public class SourceService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Source saveUserSource(SourceRequest sourceRequest) {
-        ensureUserActiveAndExists(sourceRequest.userId());
-        Source source = sourceMapper.toDomainSource(sourceRequest);
-        if (getSourceByUserIdAndURL(sourceRequest.userId(), source.getFilteredUrl())
-                .isPresent()) {
+    public Source saveUserSource(UUID userId, String sourceUrl) {
+        ensureUserActiveAndExists(userId);
+        Source source = Source.builder().userId(userId).filteredUrl(sourceUrl).build();
+        if (getSourceByUserIdAndURL(userId, source.getFilteredUrl()).isPresent()) {
             throw new ResourceUsedException("Provided source url already exists on your account");
         }
         return sourceRepository.save(source);

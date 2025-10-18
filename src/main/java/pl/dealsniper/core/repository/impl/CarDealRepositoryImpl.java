@@ -16,7 +16,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
-import pl.dealsniper.core.dto.request.CarDealFilterRequest;
+import pl.dealsniper.core.dto.request.cardeal.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.mapper.CarDealMapper;
 import pl.dealsniper.core.model.CarDeal;

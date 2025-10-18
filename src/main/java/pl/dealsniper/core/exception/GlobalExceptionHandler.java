@@ -75,6 +75,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request, WARN_LOG);
     }
 
+    @ExceptionHandler(UrlConnectException.class)
+    public ResponseEntity<ErrorResponse> handleUriConnectException(UrlConnectException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, WARN_LOG);
+    }
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             HttpStatus status, String message, HttpServletRequest request, Consumer<String> logger) {
         ErrorResponse errorResponse = ErrorResponse.builder()

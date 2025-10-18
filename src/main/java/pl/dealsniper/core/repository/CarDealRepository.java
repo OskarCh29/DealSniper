@@ -2,7 +2,7 @@
 package pl.dealsniper.core.repository;
 
 import java.util.UUID;
-import pl.dealsniper.core.dto.request.CarDealFilterRequest;
+import pl.dealsniper.core.dto.request.cardeal.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.model.BaseDeal;
 

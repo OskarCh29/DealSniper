@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dealsniper.core.dto.request.CarDealFilterRequest;
+import pl.dealsniper.core.dto.request.cardeal.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.model.CarDeal;

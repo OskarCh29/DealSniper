@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.dealsniper.core.dto.request.CarDealFilterRequest;
+import pl.dealsniper.core.dto.request.cardeal.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.service.CarDealOrchestrator;

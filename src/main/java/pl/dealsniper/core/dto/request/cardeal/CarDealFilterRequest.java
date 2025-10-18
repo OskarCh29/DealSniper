@@ -1,5 +1,5 @@
 /* (C) 2025 */
-package pl.dealsniper.core.dto.request;
+package pl.dealsniper.core.dto.request.cardeal;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
