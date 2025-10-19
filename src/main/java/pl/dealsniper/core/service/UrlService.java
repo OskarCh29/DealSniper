@@ -1,26 +1,36 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.dealsniper.core.dto.request.source.SourceRequest;
+import pl.dealsniper.core.exception.UriValidationError;
 import pl.dealsniper.core.exception.UrlConnectException;
 import pl.dealsniper.core.scraper.Selector;
 import pl.dealsniper.core.scraper.otomoto.OtomotoSelector;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UrlService {
 
     private static final String OTOMOTO_BASEURL = "https://www.otomoto.pl/osobowe/";
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final int DAYS_CACHE_DURATION = 1;
 
     public String generateAndValidateUrl(SourceRequest sourceRequest) {
         String url = createRequestedUrl(sourceRequest);
-        pingProvidedUrl(url);
+        pingProvidedUrl(url, sourceRequest);
         return url;
     }
 
@@ -59,11 +69,11 @@ public class UrlService {
         return builder.toUriString();
     }
 
-    private String urlEncode(String toEncode) {
-        return URLEncoder.encode(toEncode, StandardCharsets.UTF_8);
-    }
-
-    private void pingProvidedUrl(String url) {
+    private void pingProvidedUrl(String url, SourceRequest request) {
+        validate(
+                urlCachedAndInvalid(url),
+                url,
+                new UrlConnectException("No result found for provided url", UriValidationError.INVALID_CACHED));
         try {
             Document document = Jsoup.connect(url)
                     .userAgent(Selector.getRandomUserAgent())
@@ -73,18 +83,51 @@ public class UrlService {
                     .timeout(Selector.REQUEST_TIMEOUT)
                     .get();
 
-            boolean offerListEmpty =
-                    document.select(OtomotoSelector.OFFER_SELECTOR).isEmpty();
-
             boolean noResult =
                     document.select("h1").stream().anyMatch(h1 -> h1.text().contains("Brak wyników wyszukiwania"));
 
-            if (offerListEmpty || noResult) {
-                throw new UrlConnectException("Generated url seems invalid or returns no results");
-            }
+            boolean hasOffers = document.select(OtomotoSelector.OFFER_SELECTOR).stream()
+                    .map(offer -> offer.select(OtomotoSelector.OFFER_TITLE).text())
+                    .anyMatch(title -> title.toLowerCase()
+                                    .contains(request.brand().toLowerCase())
+                            && title.toLowerCase().contains(request.model().toLowerCase()));
 
-        } catch (Exception e) {
-            throw new UrlConnectException("Connection error while connecting to provided URL");
+            validate(
+                    noResult,
+                    url,
+                    new UrlConnectException("No result found for provided url", UriValidationError.NO_SEARCH_RESULT));
+            validate(
+                    !hasOffers,
+                    url,
+                    new UrlConnectException(
+                            "Provided URL redirected to main page - no results",
+                            UriValidationError.NO_MATCHING_OFFERS));
+
+        } catch (IOException e) {
+            log.error("Exception encountered while connecting to {} : {}", url, e.getMessage());
+            cacheInvalidUrl(url);
+            throw new UrlConnectException(
+                    "Connection error while connecting to provided URL", UriValidationError.CONNECTION_ERROR);
+        }
+    }
+
+    private void cacheInvalidUrl(String url) {
+        redisTemplate.opsForValue().set(url, "true", Duration.ofDays(DAYS_CACHE_DURATION));
+    }
+
+    private boolean urlCachedAndInvalid(String url) {
+        return redisTemplate.hasKey(url);
+    }
+
+    private String urlEncode(String toEncode) {
+        return URLEncoder.encode(toEncode, StandardCharsets.UTF_8);
+    }
+
+    private void validate(boolean condition, String url, UrlConnectException exception) {
+        if (condition) {
+            log.warn("URL validation failed. Reason: {}", exception.getReason());
+            cacheInvalidUrl(url);
+            throw exception;
         }
     }
 }

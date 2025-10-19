@@ -86,6 +86,8 @@ public class NamingConventionTest {
     static final ArchRule EXCEPTIONS_NOT_SUFFIXED = classes()
             .that()
             .resideInAPackage("..exception..")
+            .and()
+            .areNotEnums()
             .should()
             .haveSimpleNameEndingWith("Exception")
             .orShould()

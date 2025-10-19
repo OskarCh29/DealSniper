@@ -2,8 +2,14 @@
 package pl.dealsniper.core.exception;
 
 public class UrlConnectException extends RuntimeException {
+    private final UriValidationError reason;
 
-    public UrlConnectException(String message) {
+    public UrlConnectException(String message, UriValidationError reason) {
         super(message);
+        this.reason = reason;
+    }
+
+    public UriValidationError getReason() {
+        return reason;
     }
 }
