@@ -28,7 +28,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(userEmail);
-            helper.setSubject("New offers for your" + taskName + "filter");
+            helper.setSubject("New offers for your " + taskName + " filter");
 
             Context context = new Context();
             context.setVariable("deals", offers);
