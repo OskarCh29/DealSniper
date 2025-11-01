@@ -34,7 +34,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
             while (morePages && carDeals.size() < OtomotoSelector.MAX_OFFER_RESULT) {
                 String pageUrl = buildPageUrl(platformUrl, page);
 
-                Elements listings = generateUrlRequest(pageUrl, OtomotoSelector.OFFER_ID);
+                Elements listings = generateUrlRequest(pageUrl, OtomotoSelector.OFFER_SELECTOR);
 
                 log.info("Found {} offers on {} page", listings.size(), page);
 
@@ -86,7 +86,8 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
         int locationEndingIndex = fullLocation.indexOf(")");
         String location = fullLocation.substring(0, locationEndingIndex + 1);
 
-        String mileage = element.select(OtomotoSelector.OFFER_MILEAGE).text();
+        String rawMileage = element.select(OtomotoSelector.OFFER_MILEAGE).text();
+        Integer mileage = Integer.parseInt(rawMileage.replaceAll("\\D+", ""));
 
         Integer year = Integer.parseInt(
                 element.select(OtomotoSelector.OFFER_PRODUCTION_YEAR).text());

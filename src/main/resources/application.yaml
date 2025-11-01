@@ -12,6 +12,12 @@ spring:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+#Redis
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      timeout: 2000
 #Email config
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
@@ -37,3 +43,8 @@ app:
     tasks-per-user: ${USER_TASKS:5}
     thread-max-pool-size: ${POOL_SIZE:20}
     scheduler-hour-interval: ${SCHEDULER_INTERVAL:8}
+#JOOQ DEBUG LOGGING
+logging:
+  level:
+    org.jooq: DEBUG
+    org.jooq.tools.LoggerListener: DEBUG

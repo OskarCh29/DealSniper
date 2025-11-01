@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.dealsniper.core.dto.request.SourceRequest;
+import pl.dealsniper.core.dto.request.source.SourceRequest;
 import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
 import pl.dealsniper.core.service.SourceService;
-import pl.dealsniper.core.util.ResponseUtils;
+import pl.dealsniper.core.service.UrlService;
+import pl.dealsniper.core.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api/v1/sources")
@@ -25,13 +26,15 @@ import pl.dealsniper.core.util.ResponseUtils;
 public class SourceController {
 
     private final SourceService sourceService;
+    private final UrlService urlService;
     private final SourceMapper sourceMapper;
 
     @PostMapping
     ResponseEntity<SourceResponse> registerNewSource(@Valid @RequestBody SourceRequest sourceRequest) {
-        Source source = sourceService.saveUserSource(sourceRequest);
+        String requestedUrl = urlService.generateAndValidateUrl(sourceRequest);
+        Source source = sourceService.saveUserSource(sourceRequest.userId(), requestedUrl);
         SourceResponse response = sourceMapper.toSourceResponse(source);
-        return ResponseUtils.created(response, source.getId());
+        return ResponseUtil.created(response, response.id());
     }
 
     @DeleteMapping("/{sourceId}")

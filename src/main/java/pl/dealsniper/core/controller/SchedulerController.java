@@ -30,6 +30,7 @@ public class SchedulerController {
     @GetMapping("/resume")
     public ResponseEntity<?> resumeExistingTask(
             @RequestParam UUID userId, @RequestParam Long sourceId, @RequestParam String taskName) {
+        sourceService.validateUserOwnsSource(userId, sourceId);
         schedulerService.resumeInactiveTask(userId, sourceId, taskName);
         return ResponseEntity.ok().build();
     }

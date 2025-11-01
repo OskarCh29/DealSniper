@@ -13,9 +13,9 @@ import org.mockito.Mockito;
 
 class ValidPasswordTest {
 
-    private ConstraintValidatorContext context = Mockito.mock(ConstraintValidatorContext.class);
+    private final ConstraintValidatorContext context = Mockito.mock(ConstraintValidatorContext.class);
 
-    private ValidPassword annotation = new ValidPassword() {
+    private final ValidPassword annotation = new ValidPassword() {
 
         @Override
         public int minLength() {

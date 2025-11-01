@@ -28,7 +28,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(userEmail);
-            helper.setSubject("New offers for your" + taskName + "filter");
+            helper.setSubject("New offers for your " + taskName + " filter");
 
             Context context = new Context();
             context.setVariable("deals", offers);
@@ -66,7 +66,7 @@ public class EmailService {
         }
     }
 
-    public void sendUserActiveOffers(String email, List<CarDealResponse> activeOffers) {
+    public void sendUserFilterOffers(String email, List<CarDealResponse> filterOffers) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -75,7 +75,7 @@ public class EmailService {
             helper.setSubject("DealSniper - Your active offers");
 
             Context context = new Context();
-            context.setVariable("deals", activeOffers);
+            context.setVariable("deals", filterOffers);
 
             String htmlContent = templateEngine.process("car_deals_offers_email.html", context);
             helper.setText(htmlContent, true);

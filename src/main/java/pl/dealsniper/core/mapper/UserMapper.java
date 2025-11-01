@@ -4,7 +4,7 @@ package pl.dealsniper.core.mapper;
 import com.dealsniper.jooq.tables.records.UsersRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import pl.dealsniper.core.dto.request.UserRequest;
+import pl.dealsniper.core.dto.request.user.UserRequest;
 import pl.dealsniper.core.dto.response.UserResponse;
 import pl.dealsniper.core.model.User;
 

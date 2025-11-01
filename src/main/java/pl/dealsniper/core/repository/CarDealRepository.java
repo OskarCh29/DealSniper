@@ -2,7 +2,7 @@
 package pl.dealsniper.core.repository;
 
 import java.util.UUID;
-import pl.dealsniper.core.dto.request.CarDealFilter;
+import pl.dealsniper.core.dto.request.cardeal.CarDealFilterRequest;
 import pl.dealsniper.core.dto.response.PageResponse;
 import pl.dealsniper.core.model.BaseDeal;
 
@@ -19,5 +19,6 @@ public interface CarDealRepository<T extends BaseDeal> {
 
     PageResponse<T> findAllByUserId(UUID userId, int page, int size);
 
-    PageResponse<T> findAllByUserIdAndFilter(UUID userId, CarDealFilter filter, int page, int size);
+    PageResponse<T> findAllByUserIdAndFilter(
+            UUID userId, CarDealFilterRequest filter, boolean currentActiveRecords, int page, int size);
 }

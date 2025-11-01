@@ -18,7 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.dealsniper.core.dto.request.UserRequest;
+import pl.dealsniper.core.dto.request.user.UserRequest;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.mapper.UserMapper;

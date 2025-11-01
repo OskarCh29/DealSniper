@@ -9,7 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration
 public class SchedulerConfig {
 
-    @Value("${app.config.thread-max-pool-size}")
+    @Value("${app.config.thread-max-pool-size:10}")
     private Integer maxPoolSize;
 
     @Bean
