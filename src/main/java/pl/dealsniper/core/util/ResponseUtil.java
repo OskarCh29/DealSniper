@@ -5,7 +5,7 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-public class ResponseUtil {
+public abstract class ResponseUtil {
 
     public static <T, V> ResponseEntity<T> created(T body, V id) {
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()

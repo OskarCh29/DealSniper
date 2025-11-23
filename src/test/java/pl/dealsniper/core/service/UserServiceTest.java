@@ -8,10 +8,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static pl.dealsniper.core.mock.MockConst.MOCK_CREATED_AT;
+import static pl.dealsniper.core.mock.MockConst.MOCK_EMAIL;
+import static pl.dealsniper.core.mock.MockConst.MOCK_HASH_PASSWORD;
+import static pl.dealsniper.core.mock.MockConst.MOCK_UUID;
+import static pl.dealsniper.core.mock.MockFactory.getMockUser;
+import static pl.dealsniper.core.mock.MockFactory.getMockUserRequest;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,18 +25,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.dealsniper.core.dto.request.user.UserRequest;
 import pl.dealsniper.core.exception.RecordNotFoundException;
 import pl.dealsniper.core.exception.ResourceUsedException;
+import pl.dealsniper.core.exception.UserInactiveException;
 import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
-    private static final UUID TEST_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-    private static final LocalDateTime TEST_CREATE_DATE = LocalDateTime.of(2025, 3, 15, 10, 0);
-    private static final String TEST_EMAIL = "user@example.com";
-    private static final String TEST_HASHED_PASSWORD =
-            "b56094a66443430e2b0871f31439fda21d7c4a50cd5ddadb511c85114e3906c9";
 
     @Mock
     UserRepository userRepository;
@@ -41,43 +40,43 @@ class UserServiceTest {
     UserMapper userMapper;
 
     @InjectMocks
-    UserService userService;
+    UserService underTest;
 
     @Test
     void getUserByIdShouldReturnUserWhenIdValid() {
         User testUser = getTestUserBuilder()
-                .id(TEST_UUID)
-                .email(TEST_EMAIL)
-                .password(TEST_HASHED_PASSWORD)
+                .id(MOCK_UUID)
+                .email(MOCK_EMAIL)
+                .password(MOCK_HASH_PASSWORD)
                 .active(true)
-                .createdAt(TEST_CREATE_DATE)
+                .createdAt(MOCK_CREATED_AT)
                 .build();
 
-        when(userRepository.findById(TEST_UUID)).thenReturn(Optional.ofNullable(testUser));
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.ofNullable(testUser));
 
-        User result = userService.getUserById(TEST_UUID);
+        User result = underTest.getUserById(MOCK_UUID);
 
         assertThat(result)
                 .extracting(User::getId, User::getEmail, User::getPassword, User::getActive, User::getCreatedAt)
-                .containsExactly(TEST_UUID, TEST_EMAIL, TEST_HASHED_PASSWORD, true, TEST_CREATE_DATE);
+                .containsExactly(MOCK_UUID, MOCK_EMAIL, MOCK_HASH_PASSWORD, true, MOCK_CREATED_AT);
 
-        verify(userRepository).findById(TEST_UUID);
+        verify(userRepository).findById(MOCK_UUID);
     }
 
     @Test
-    void getUserByIdShouldThrowExceptionWhenIdInvalid() {
-        when(userRepository.findById(TEST_UUID)).thenReturn(Optional.empty());
+    void getUserById_shouldThrowException_whenIdInvalid() {
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getUserById(TEST_UUID))
+        assertThatThrownBy(() -> underTest.getUserById(MOCK_UUID))
                 .isInstanceOf(RecordNotFoundException.class)
                 .hasMessage("User with provided Id not found");
 
-        verify(userRepository).findById(TEST_UUID);
+        verify(userRepository).findById(MOCK_UUID);
     }
 
     @Test
-    void saveUserShouldSaveUserWhenEmailAvailable() {
-        UserRequest testRequest = getUserRequestWithSampleDate();
+    void saveUser_shouldSaveUser_whenEmailAvailable() {
+        UserRequest testRequest = getMockUserRequest();
 
         doAnswer(invocation -> {
                     UserRequest req = invocation.getArgument(0);
@@ -92,24 +91,24 @@ class UserServiceTest {
         when(userRepository.existsByEmail(testRequest.email())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User saved = userService.saveUser(testRequest);
+        User saved = underTest.saveUser(testRequest);
 
         assertThat(saved)
                 .isNotNull()
                 .extracting(User::getEmail, User::getPassword)
-                .containsExactly(TEST_EMAIL, TEST_HASHED_PASSWORD);
+                .containsExactly(MOCK_EMAIL, MOCK_HASH_PASSWORD);
 
         verify(userRepository).existsByEmail(testRequest.email());
         verify(userRepository).save(any(User.class));
     }
 
     @Test
-    void saveUserShouldThrowExceptionWhenEmailUnavailable() {
-        UserRequest testRequest = getUserRequestWithSampleDate();
+    void saveUser_shouldThrowException_whenEmailUnavailable() {
+        UserRequest testRequest = getMockUserRequest();
 
         when(userRepository.existsByEmail(testRequest.email())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.saveUser(testRequest))
+        assertThatThrownBy(() -> underTest.saveUser(testRequest))
                 .isInstanceOf(ResourceUsedException.class)
                 .hasMessage("Email already in use");
 
@@ -117,39 +116,63 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUserAccountShouldNotThrowException() {
-        User user = getUserWithSampleData();
-        when(userRepository.findById(TEST_UUID)).thenReturn(Optional.of(user));
+    void deleteUserAccount_shouldNotThrowException() {
+        User user = getMockUser();
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.of(user));
 
-        assertDoesNotThrow(() -> userService.deleteUserAccount(TEST_UUID));
+        assertDoesNotThrow(() -> underTest.deleteUserAccount(MOCK_UUID));
 
-        verify(userRepository).findById(TEST_UUID);
+        verify(userRepository).findById(MOCK_UUID);
     }
 
     @Test
-    void deleteUserAccountShouldThrowExceptionWhenUserNotExists() {
-        when(userRepository.findById(TEST_UUID)).thenReturn(Optional.empty());
+    void deleteUserAccount_shouldThrowExceptio_whenUserNotExists() {
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.deleteUserAccount(TEST_UUID))
+        assertThatThrownBy(() -> underTest.deleteUserAccount(MOCK_UUID))
                 .isInstanceOf(RecordNotFoundException.class)
                 .hasMessage("User with provided Id not found");
     }
 
-    private User getUserWithSampleData() {
-        return User.builder()
-                .id(TEST_UUID)
-                .email(TEST_EMAIL)
-                .password(TEST_HASHED_PASSWORD)
-                .active(true)
-                .createdAt(TEST_CREATE_DATE)
-                .build();
+    @Test
+    void ensureUserActive_shouldThrowException_whenUserNotExists() {
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> underTest.ensureUserActive(MOCK_UUID))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("User with provided Id not found");
+
+        verify(userRepository).findById(MOCK_UUID);
     }
 
-    private UserRequest getUserRequestWithSampleDate() {
-        return UserRequest.builder()
-                .email(TEST_EMAIL)
-                .password(TEST_HASHED_PASSWORD)
+    @Test
+    void ensureUserActive_userFound() {
+        User user = getMockUser();
+
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> underTest.ensureUserActive(MOCK_UUID));
+
+        verify(userRepository).findById(MOCK_UUID);
+    }
+
+    @Test
+    void ensureUserActive_userInactive() {
+        User user = getTestUserBuilder()
+                .id(MOCK_UUID)
+                .email(MOCK_EMAIL)
+                .password(MOCK_HASH_PASSWORD)
+                .active(false)
+                .createdAt(MOCK_CREATED_AT)
                 .build();
+
+        when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> underTest.ensureUserActive(MOCK_UUID))
+                .isInstanceOf(UserInactiveException.class)
+                .hasMessage("Provided user is not active");
+
+        verify(userRepository).findById(MOCK_UUID);
     }
 
     private User.UserBuilder getTestUserBuilder() {

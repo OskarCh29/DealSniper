@@ -4,9 +4,9 @@ package pl.dealsniper.core.architecture;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
-import static pl.dealsniper.core.util.ArchUnitNaming.CONTROLLER_LAYER;
-import static pl.dealsniper.core.util.ArchUnitNaming.REPOSITORY_IMPL_LAYER;
-import static pl.dealsniper.core.util.ArchUnitNaming.SERVICE_LAYER;
+import static pl.dealsniper.core.mock.ArchUnitNaming.CONTROLLER_LAYER;
+import static pl.dealsniper.core.mock.ArchUnitNaming.REPOSITORY_IMPL_LAYER;
+import static pl.dealsniper.core.mock.ArchUnitNaming.SERVICE_LAYER;
 
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;

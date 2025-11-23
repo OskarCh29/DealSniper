@@ -2,7 +2,7 @@
 package pl.dealsniper.core.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static pl.dealsniper.core.util.ArchUnitNaming.*;
+import static pl.dealsniper.core.mock.ArchUnitNaming.*;
 
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;

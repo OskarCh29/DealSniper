@@ -1,5 +1,5 @@
 /* (C) 2025 */
-package pl.dealsniper.core.util;
+package pl.dealsniper.core.mock;
 
 public abstract class ArchUnitNaming {
 

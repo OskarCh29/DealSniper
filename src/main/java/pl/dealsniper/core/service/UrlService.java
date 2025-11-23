@@ -23,7 +23,7 @@ import pl.dealsniper.core.scraper.otomoto.OtomotoSelector;
 @Service
 @RequiredArgsConstructor
 public class UrlService {
-
+    ///  Separate to more services
     private static final String OTOMOTO_BASEURL = "https://www.otomoto.pl/osobowe/";
     private final RedisTemplate<String, String> redisTemplate;
     private static final int DAYS_CACHE_DURATION = 1;

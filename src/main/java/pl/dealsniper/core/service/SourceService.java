@@ -24,6 +24,8 @@ public class SourceService {
     private final SourceMapper sourceMapper;
     private final UserRepository userRepository;
 
+    private static final int NO_RECORDS_DELETED = 0;
+
     @Transactional
     public Source saveUserSource(UUID userId, String sourceUrl) {
         ensureUserActiveAndExists(userId);
@@ -37,7 +39,7 @@ public class SourceService {
     @Transactional
     public void deleteSourceById(Long id) {
         int deleted = sourceRepository.deleteById(id);
-        if (deleted == 0) {
+        if (deleted == NO_RECORDS_DELETED) {
             throw new RecordNotFoundException("Source with provided id not found");
         }
     }

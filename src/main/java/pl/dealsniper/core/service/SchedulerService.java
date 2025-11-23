@@ -136,7 +136,6 @@ public class SchedulerService {
 
     @Transactional
     private void saveNewTask(UUID userId, Long sourceId, String taskName) {
-
         Task newTask = Task.builder()
                 .taskName(taskName)
                 .userId(userId)
