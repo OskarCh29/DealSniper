@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "app")
-public class ApplicationProperties {
+public class ApplicationConfiguration {
 
     private String baseUrl;
     private AppConfig config;

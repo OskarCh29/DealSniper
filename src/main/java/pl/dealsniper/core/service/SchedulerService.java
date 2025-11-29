@@ -16,6 +16,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dealsniper.core.configuration.ApplicationConfiguration;
 import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.exception.ScheduledTaskException;
 import pl.dealsniper.core.model.Task;
@@ -27,18 +28,13 @@ import pl.dealsniper.core.scheduler.ManagedTask;
 @RequiredArgsConstructor
 public class SchedulerService {
 
-    @Value("${app.config.scheduler-hour-interval}")
-    private int schedulerInterval;
-
-    @Value("${app.config.tasks-per-user}")
-    private int userTasks;
-
     private static final int DELAY_MULTIPLAYER = 120;
     private static final int STAGGER_STEP = 30;
 
     private final TaskRepository taskRepository;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final CarDealOrchestrator orchestrator;
+    private final ApplicationConfiguration properties;
 
     private final Map<String, ManagedTask> activeTasks = new ConcurrentHashMap<>();
 
@@ -121,7 +117,7 @@ public class SchedulerService {
                 taskName,
                 taskScheduler,
                 (src) -> orchestrator.processSingleSource(src, taskName),
-                Duration.ofMinutes(schedulerInterval));
+                Duration.ofMinutes(properties.getConfig().getSchedulerHourInterval()));
     }
 
     @Transactional(readOnly = true)
@@ -136,7 +132,7 @@ public class SchedulerService {
 
     @Transactional(readOnly = true)
     private void checkIfUserCanStartNewTask(UUID userId) {
-        if (taskRepository.countUserStartedTasksByUserId(userId) == userTasks) {
+        if (taskRepository.countUserStartedTasksByUserId(userId) == properties.getConfig().getTaskPerUser()) {
             throw new ResourceUsedException("You reached maximum number of started tasks");
         }
     }

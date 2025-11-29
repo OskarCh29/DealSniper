@@ -2,7 +2,6 @@
 package pl.dealsniper.core.scraper.otomoto;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
     private static final int OFFERS_PER_PAGE = 32;
     private static final int MINIMUM_OFFERS_TO_CORRECT_CURRENCY = 2;
     private static final int SECOND_OFFER = 1;
+    private static final int INITIAL_PAGE = 1;
 
     @Override
     public List<CarDeal> getDeals(String platformUrl, Long sourceId) {
@@ -52,7 +52,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
 
     private List<CarDeal> fetchAllPages(String platformUrl, Long sourceId){
         List<CarDeal> carDeals = new ArrayList<>();
-        int page = 1;
+        int page = INITIAL_PAGE;
 
         while (carDeals.size() < ScraperUtil.MAX_OFFER_RESULT) {
             String pageUrl = buildPageUrl(platformUrl,page);
@@ -82,8 +82,10 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
 
     private void addOffers(Elements elements, List<CarDeal> carDeals, Long sourceId) {
         for (Element element : elements) {
-            if (carDeals.size() >= ScraperUtil.MAX_OFFER_RESULT) {
-                break;
+            if(Thread.currentThread().isInterrupted() || carDeals.size() >= ScraperUtil.MAX_OFFER_RESULT) {
+                log.info("Scrapping cancelled: {}",
+                        Thread.currentThread().isInterrupted() ? "Process interrupted" : "Reached maximum scraped offers");
+                return;
             }
             CarDeal carDeal = parseElementToDeal(element);
             carDeal.setSourceId(sourceId);

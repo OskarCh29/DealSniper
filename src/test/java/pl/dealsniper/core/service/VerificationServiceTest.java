@@ -19,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.dealsniper.core.configuration.ApplicationProperties;
+import pl.dealsniper.core.configuration.ApplicationConfiguration;
 import pl.dealsniper.core.dto.request.user.VerificationRequest;
 import pl.dealsniper.core.exception.VerificationCodeException;
 import pl.dealsniper.core.model.Verification;
@@ -30,7 +30,7 @@ import pl.dealsniper.core.time.TimeProvider;
 public class VerificationServiceTest {
 
     @Mock
-    ApplicationProperties applicationProperties;
+    ApplicationConfiguration applicationConfiguration;
 
     @Mock
     VerificationRepository verificationRepository;
@@ -45,14 +45,14 @@ public class VerificationServiceTest {
     void generateverificationlink_sucessfull() {
         Verification verification = getMockVerification();
         when(verificationRepository.save(any(), any())).thenReturn(verification);
-        when(applicationProperties.getBaseUrl()).thenReturn(MOCK_BASE_URL);
+        when(applicationConfiguration.getBaseUrl()).thenReturn(MOCK_BASE_URL);
 
         String result = underTest.generateVerificationLink(MOCK_EMAIL);
 
         assertThat(result).isNotNull().contains(MOCK_BASE_URL);
 
         verify(verificationRepository).save(any(), any());
-        verify(applicationProperties).getBaseUrl();
+        verify(applicationConfiguration).getBaseUrl();
     }
 
     @Test

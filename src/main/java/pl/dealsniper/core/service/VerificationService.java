@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dealsniper.core.configuration.ApplicationProperties;
+import pl.dealsniper.core.configuration.ApplicationConfiguration;
 import pl.dealsniper.core.dto.request.user.VerificationRequest;
 import pl.dealsniper.core.exception.VerificationCodeException;
 import pl.dealsniper.core.model.Verification;
@@ -25,7 +25,7 @@ public class VerificationService {
     private static final Integer CODE_BYTE_LENGTH = 32;
     private static final Duration VALIDITY = Duration.ofHours(1);
 
-    private final ApplicationProperties applicationProperties;
+    private final ApplicationConfiguration applicationConfiguration;
     private final VerificationRepository verificationRepository;
     private final TimeProvider timeProvider;
 
@@ -33,7 +33,7 @@ public class VerificationService {
     public String generateVerificationLink(String email) {
         String generatedCode = generateVerificationCode();
         verificationRepository.save(generatedCode, email);
-        return applicationProperties.getBaseUrl() + "/verification.html?code=" + generatedCode;
+        return applicationConfiguration.getBaseUrl() + "/verification.html?code=" + generatedCode;
     }
 
     public String getEmailByCode(VerificationRequest verificationRequest) {
