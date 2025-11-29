@@ -13,6 +13,8 @@ import pl.dealsniper.core.exception.UserInactiveException;
 import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
+import pl.dealsniper.core.time.TimeProvider;
+import pl.dealsniper.core.util.ValidationUtil;
 
 @Slf4j
 @Service
@@ -21,13 +23,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public User saveUser(UserRequest userRequest) {
         ensureEmailAvailable(userRequest.email());
         User newUser = userMapper.toDomainModel(userRequest);
-
-        return userRepository.save(newUser);
+        UUID userId = UUID.randomUUID();
+        return userRepository.save(newUser, userId);
     }
 
     @Transactional(readOnly = true)
@@ -40,21 +43,18 @@ public class UserService {
     @Transactional
     public void deleteUserAccount(UUID uuid) {
         User user = getUserById(uuid);
-        userRepository.deleteUserPersonalData(user.getId());
+        userRepository.deleteUserPersonalData(user.getId(),timeProvider.now());
     }
 
+    @Transactional(readOnly = true)
     public void ensureEmailAvailable(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new ResourceUsedException("Email already in use");
-        }
+        ValidationUtil.throwIfTrue(userRepository.existsByEmail(email),
+                () -> new ResourceUsedException("Email already in use"));
     }
 
+    @Transactional(readOnly = true)
     public void ensureUserActive(UUID userId) {
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new RecordNotFoundException("User with provided Id not found"));
-        if (!user.getActive()) {
-            throw new UserInactiveException("Provided user is not active");
-        }
+        ValidationUtil.throwIfFalse(userRepository.existsActiveById(userId),
+                () -> new UserInactiveException("Provided user is not active"));
     }
 }

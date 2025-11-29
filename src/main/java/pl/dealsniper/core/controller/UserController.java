@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    ResponseEntity<?> register(@Valid @RequestBody AccountRequest accountRequest) {
+    ResponseEntity<Void> register(@Valid @RequestBody AccountRequest accountRequest) {
         userService.ensureEmailAvailable(accountRequest.email());
         String verificationEmail = verificationService.generateVerificationLink(accountRequest.email());
         emailService.sendVerificationEmail(accountRequest.email(), verificationEmail);

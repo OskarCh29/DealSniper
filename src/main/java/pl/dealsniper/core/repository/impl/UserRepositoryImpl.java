@@ -26,9 +26,9 @@ public class UserRepositoryImpl implements UserRepository {
     private final UserMapper userMapper;
 
     @Override
-    public User save(User user) {
+    public User save(User user, UUID userId) {
         UsersRecord record = userMapper.toJooqUserRecord(user);
-        record.setId(UUID.randomUUID());
+        record.setId(userId);
         UsersRecord savedRecord = dsl.insertInto(USERS)
                 .set(USERS.ID, record.getId())
                 .set(USERS.EMAIL, record.getEmail())
@@ -62,7 +62,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void deleteUserPersonalData(UUID userId) {
+    public void deleteUserPersonalData(UUID userId, LocalDateTime deletedAt) {
         dsl.update(USERS)
                 .set(
                         USERS.EMAIL,
@@ -70,7 +70,7 @@ public class UserRepositoryImpl implements UserRepository {
                                 DSL.inline("deleted_user_"), USERS.ID.cast(String.class), DSL.inline("@example.com")))
                 .set(USERS.PASSWORD, CryptoUtil.getRandomHash())
                 .set(USERS.ACTIVE, false)
-                .set(USERS.DELETED_AT, LocalDateTime.now())
+                .set(USERS.DELETED_AT, deletedAt)
                 .where(USERS.ID.eq(userId))
                 .execute();
     }
@@ -89,5 +89,12 @@ public class UserRepositoryImpl implements UserRepository {
             throw new InsertFailedException("USER", user.getId());
         }
         return userMapper.toDomainModel(record);
+    }
+
+    @Override
+    public boolean existsActiveById(UUID userId) {
+        return dsl.fetchExists(dsl.selectFrom(USERS)
+                .where(USERS.ID.eq(userId))
+                .and(USERS.ACTIVE.isTrue()));
     }
 }

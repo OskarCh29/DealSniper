@@ -48,9 +48,9 @@ public class VerificationRepositoryImpl implements VerificationRepository {
     }
 
     @Override
-    public void deactivateExpiredCodes() {
+    public void deactivateExpiredCodes(LocalDateTime expiryTime) {
         dsl.delete(VERIFICATIONS)
-                .where(VERIFICATIONS.CREATED_AT.lessThan(EXPIRY_TIME))
+                .where(VERIFICATIONS.CREATED_AT.lessThan(expiryTime))
                 .execute();
     }
 }

@@ -13,4 +13,14 @@ import org.springframework.context.annotation.Configuration;
 public class ApplicationProperties {
 
     private String baseUrl;
+    private AppConfig config;
+
+
+    @Getter
+    @Setter
+    public static class AppConfig{
+        private int taskPerUser;
+        private int threadMaxPoolSize;
+        private int schedulerHourInterval;
+    }
 }

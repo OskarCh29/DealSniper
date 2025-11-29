@@ -32,10 +32,7 @@ spring:
 springdoc:
   swagger-ui:
     path: "/api-doc"
-#Security
-security:
-  saltPrefix: ${PREFIX}
-  saltSuffix: ${SUFFIX}
+
 #Application config
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}

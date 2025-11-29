@@ -3,7 +3,6 @@ package pl.dealsniper.core.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -14,6 +13,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.model.CarDeal;
 
+import java.util.List;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,68 +25,47 @@ public class EmailService {
     private final SpringTemplateEngine templateEngine;
 
     public void sendOffersToUser(String userEmail, List<CarDeal> offers, String taskName) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(userEmail);
-            helper.setSubject("New offers for your " + taskName + " filter");
-
-            Context context = new Context();
-            context.setVariable("deals", offers);
-
-            String htmlContent = templateEngine.process("car_deals_email.html", context);
-            helper.setText(htmlContent, true);
-
-            mailSender.send(message);
-            log.info("New offers has been sent");
-
-        } catch (MessagingException e) {
-            throw new IllegalStateException("Error while sending offers requestedEmail");
-        }
+        Map<String, Object> content = Map.of("deals", offers);
+        String templateName = "car_deals_email.html";
+        String subject = "New offers for filter: " + taskName;
+        sendHtmlEmail(userEmail, subject, templateName, content);
+        log.info("New offers has been sent");
     }
 
-    public void sendVerificationEmail(String email, String verificationLink) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(email);
-            helper.setSubject("DealSniper verification requestedEmail");
-
-            Context context = new Context();
-            context.setVariable("verificationLink", verificationLink);
-
-            String htmlContent = templateEngine.process("verification_email.html", context);
-            helper.setText(htmlContent, true);
-
-            mailSender.send(message);
-            log.info("Verification requestedEmail has been sent to {}", email);
-
-        } catch (MessagingException e) {
-            throw new IllegalStateException("Error while sending verification requestedEmail");
-        }
+    public void sendVerificationEmail(String userEmail, String verificationLink) {
+        Map<String, Object> content = Map.of("verificationLink", verificationLink);
+        String subject = "DealSniper verification";
+        String templateName = "verification_email.html";
+        sendHtmlEmail(userEmail, subject, templateName, content);
+        log.info("Verification requestedEmail has been sent to {}", userEmail);
     }
 
-    public void sendUserFilterOffers(String email, List<CarDealResponse> filterOffers) {
+    public void sendUserFilterOffers(String userEmail, List<CarDealResponse> filteredOffers) {
+        Map<String, Object> content = Map.of("deals", filteredOffers);
+        String subject = "DealSniper - Your active offers";
+        String templateName = "car_deals_offers_email.html";
+        sendHtmlEmail(userEmail, subject, templateName, content);
+        log.info("User requested offers has been send");
+    }
+
+    private void sendHtmlEmail(String sendTo, String subject, String templateName, Map<String, Object> content) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setTo(email);
-            helper.setSubject("DealSniper - Your active offers");
+            helper.setTo(sendTo);
+            helper.setSubject(subject);
 
             Context context = new Context();
-            context.setVariable("deals", filterOffers);
+            context.setVariables(content);
 
-            String htmlContent = templateEngine.process("car_deals_offers_email.html", context);
+            String htmlContent = templateEngine.process(templateName, context);
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
-            log.info("User requested offers has been send");
 
         } catch (MessagingException e) {
-            throw new IllegalStateException("Error while sending user active offers");
+            throw new IllegalStateException("Email error occurred while sending email with subject: " + subject);
         }
     }
 }

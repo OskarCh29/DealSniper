@@ -29,7 +29,6 @@ public class CarDealOrchestrator {
     public void processSingleSource(Long sourceId, String taskName) {
         Source source = sourceService.getSourceById(sourceId);
         userService.ensureUserActive(source.getUserId());
-
         List<CarDeal> scrapedOffers = otomotoScraper.getDeals(source.getFilteredUrl(), source.getId());
 
         persistScrapedOffers(source.getUserId(), scrapedOffers, taskName);

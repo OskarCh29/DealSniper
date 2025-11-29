@@ -59,6 +59,11 @@ public class VerificationService {
         return verification;
     }
 
+    @Transactional
+    public void deactivateExpiredCodes(){
+        verificationRepository.deactivateExpiredCodes(timeProvider.now().minus(VALIDITY));
+    }
+
     private String generateVerificationCode() {
         byte[] randomBytes = new byte[CODE_BYTE_LENGTH];
         SECURE_RANDOM.nextBytes(randomBytes);

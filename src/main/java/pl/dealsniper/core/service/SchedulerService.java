@@ -109,6 +109,10 @@ public class SchedulerService {
         taskRepository.activateTask(userId, taskName);
     }
 
+    public boolean isTaskInactive(String taskName, UUID userId) {
+        return taskRepository.existsInactiveTaskByNameAndUserId(taskName, userId);
+    }
+
     private ManagedTask createManagedTask(UUID userId, Long sourceId, String taskName) {
         String key = userId + ":" + sourceId;
         return new ManagedTask(

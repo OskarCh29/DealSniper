@@ -1,6 +1,7 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import pl.dealsniper.core.model.Verification;
 
@@ -12,5 +13,5 @@ public interface VerificationRepository {
 
     void deleteVerificationByCode(String code);
 
-    void deactivateExpiredCodes();
+    void deactivateExpiredCodes(LocalDateTime expiryTime);
 }

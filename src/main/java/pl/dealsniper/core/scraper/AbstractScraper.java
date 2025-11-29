@@ -19,8 +19,8 @@ public abstract class AbstractScraper<T extends BaseDeal> implements Scraper<T> 
     private static final int MINIMUM_MS_DELAY = 1000;
     private static final int MAX_MS_DELAY = 60000;
 
-    protected Elements generateUrlRequest(String platformUlr, String offerId) throws IOException {
-        Document doc = Jsoup.connect(platformUlr)
+    protected Elements generateUrlRequest(String platformUrl, String offerId) throws IOException {
+        Document doc = Jsoup.connect(platformUrl)
                 .userAgent(Selector.getRandomUserAgent())
                 .header("Accept-Language", Selector.LANGUAGE_HEADER)
                 .header("Referer", Selector.getRandomReferer())
