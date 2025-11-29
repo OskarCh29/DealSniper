@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pl.dealsniper.core.dto.request.source.SourceRequest;
 import pl.dealsniper.core.exception.UriValidationError;
 import pl.dealsniper.core.exception.UrlConnectException;
-import pl.dealsniper.core.scraper.Selector;
+import pl.dealsniper.core.util.ScraperUtil;
 import pl.dealsniper.core.scraper.otomoto.OtomotoSelector;
 
 @Slf4j
@@ -78,11 +78,11 @@ public class UrlService {
                 new UrlConnectException("No result found for provided url", UriValidationError.INVALID_CACHED));
         try {
             Document document = Jsoup.connect(url)
-                    .userAgent(Selector.getRandomUserAgent())
-                    .header("Accept-Language", Selector.LANGUAGE_HEADER)
-                    .header("Referer", Selector.getRandomReferer())
+                    .userAgent(ScraperUtil.getRandomUserAgent())
+                    .header("Accept-Language", ScraperUtil.LANGUAGE_HEADER)
+                    .header("Referer", ScraperUtil.getRandomReferer())
                     .header("Connection", "keep-alive")
-                    .timeout(Selector.REQUEST_TIMEOUT)
+                    .timeout(ScraperUtil.REQUEST_TIMEOUT)
                     .get();
 
             boolean noResult =
