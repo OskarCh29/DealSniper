@@ -66,24 +66,25 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                         CAR_DEALS.ACTIVE,
                         CAR_DEALS.SOURCE_ID)
                 .select(dsl.select(
-                                CAR_DEALS_TMP.TITLE,
-                                CAR_DEALS_TMP.PRICE,
-                                CAR_DEALS_TMP.CURRENCY,
+                                DSL.min(CAR_DEALS_TMP.TITLE),
+                                DSL.min(CAR_DEALS_TMP.PRICE),
+                                DSL.min(CAR_DEALS_TMP.CURRENCY),
                                 CAR_DEALS_TMP.OFFER_URL,
-                                CAR_DEALS_TMP.LOCATION,
-                                CAR_DEALS_TMP.MILEAGE,
-                                CAR_DEALS_TMP.YEAR,
+                                DSL.min(CAR_DEALS_TMP.LOCATION),
+                                DSL.min(CAR_DEALS_TMP.MILEAGE),
+                                DSL.min(CAR_DEALS_TMP.YEAR),
                                 DSL.inline(true),
                                 CAR_DEALS_TMP.SOURCE_ID)
-                        .from(CAR_DEALS_TMP))
+                        .from(CAR_DEALS_TMP)
+                        .groupBy(CAR_DEALS_TMP.OFFER_URL, CAR_DEALS_TMP.SOURCE_ID))
                 .onConflict(CAR_DEALS.OFFER_URL, CAR_DEALS.SOURCE_ID)
                 .doUpdate()
-                .set(CAR_DEALS.TITLE, DSL.excluded(CAR_DEALS_TMP.TITLE))
-                .set(CAR_DEALS.PRICE, DSL.excluded(CAR_DEALS_TMP.PRICE))
-                .set(CAR_DEALS.CURRENCY, DSL.excluded(CAR_DEALS_TMP.CURRENCY))
-                .set(CAR_DEALS.MILEAGE, DSL.excluded(CAR_DEALS_TMP.MILEAGE))
-                .set(CAR_DEALS.LOCATION, DSL.excluded(CAR_DEALS_TMP.LOCATION))
-                .set(CAR_DEALS.YEAR, DSL.excluded(CAR_DEALS_TMP.YEAR))
+                .set(CAR_DEALS.TITLE, DSL.excluded(CAR_DEALS.TITLE))
+                .set(CAR_DEALS.PRICE, DSL.excluded(CAR_DEALS.PRICE))
+                .set(CAR_DEALS.CURRENCY, DSL.excluded(CAR_DEALS.CURRENCY))
+                .set(CAR_DEALS.MILEAGE, DSL.excluded(CAR_DEALS.MILEAGE))
+                .set(CAR_DEALS.LOCATION, DSL.excluded(CAR_DEALS.LOCATION))
+                .set(CAR_DEALS.YEAR, DSL.excluded(CAR_DEALS.YEAR))
                 .set(CAR_DEALS.ACTIVE, DSL.inline(true))
                 .execute();
     }

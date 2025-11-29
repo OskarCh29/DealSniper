@@ -59,7 +59,7 @@ public class TaskRepositoryImpl implements TaskRepository {
                 .fetchOne();
 
         if (savedRecord == null) {
-            throw new InsertFailedException("TASK: ", task.getUserId() + ":" + task.getSourceId() + " already exists");
+            throw new InsertFailedException("TASK", task.getTaskName() + ":" + task.getSourceId() + " already exists");
         }
 
         return mapper.toDomainModel(savedRecord);
@@ -86,5 +86,20 @@ public class TaskRepositoryImpl implements TaskRepository {
                 .where(SCHEDULED_TASKS.USER_ID.eq(userId))
                 .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
                 .execute();
+    }
+
+    @Override
+    public void deleteTask(UUID userId, Long sourceId) {
+        dsl.delete(SCHEDULED_TASKS)
+                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
+                .and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId))
+                .execute();
+    }
+
+    @Override
+    public boolean existsByNameAndUserId(String taskName, UUID userId) {
+        return dsl.fetchExists(dsl.selectFrom(SCHEDULED_TASKS)
+                .where(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
+                .and(SCHEDULED_TASKS.USER_ID.eq(userId)));
     }
 }

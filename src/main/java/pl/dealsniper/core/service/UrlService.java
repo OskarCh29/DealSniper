@@ -35,9 +35,11 @@ public class UrlService {
     }
 
     private String createRequestedUrl(SourceRequest request) {
-        String base = OTOMOTO_BASEURL
-                + urlEncode(request.brand().toLowerCase()) + "/"
-                + urlEncode(request.model().toLowerCase()) + "/";
+        String base = OTOMOTO_BASEURL + urlEncode(request.brand().toLowerCase()) + "/";
+
+        if (request.model() != null && !request.model().isBlank()) {
+            base += request.model().toLowerCase() + "/";
+        }
 
         if (request.location() != null && !request.location().isBlank()) {
             base += request.location().toLowerCase() + "/";
@@ -52,9 +54,9 @@ public class UrlService {
                 .queryParamIfPresent("search[filter_float_year:to]", Optional.ofNullable(request.maxYear()))
                 .queryParamIfPresent("search[filter_float_mileage:from]", Optional.ofNullable(request.minMileage()))
                 .queryParamIfPresent("search[filter_float_mileage:to]", Optional.ofNullable(request.maxMileage()));
-        if (request.damaged()) {
-            builder.queryParam("search[filter_enum_damaged]", "1");
-        }
+
+        builder.queryParam("search[filter_enum_damaged]", request.damaged() ? "1" : "0");
+
         if (request.transmissionType() != null) {
             builder.queryParam(
                     "search[filter_enum_gearbox]", request.transmissionType().getDisplayName());
@@ -88,9 +90,8 @@ public class UrlService {
 
             boolean hasOffers = document.select(OtomotoSelector.OFFER_SELECTOR).stream()
                     .map(offer -> offer.select(OtomotoSelector.OFFER_TITLE).text())
-                    .anyMatch(title -> title.toLowerCase()
-                                    .contains(request.brand().toLowerCase())
-                            && title.toLowerCase().contains(request.model().toLowerCase()));
+                    .anyMatch(title ->
+                            title.toLowerCase().contains(request.brand().toLowerCase()));
 
             validate(
                     noResult,

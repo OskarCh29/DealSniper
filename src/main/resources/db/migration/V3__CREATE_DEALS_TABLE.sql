@@ -9,6 +9,6 @@ mileage INT,
 "year" INT NOT NULL,
 active BOOLEAN DEFAULT TRUE,
 source_id BIGINT NOT NULL,
-CONSTRAINT fk_source_id FOREIGN KEY (source_id) REFERENCES sources(id),
+CONSTRAINT fk_source_id FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE CASCADE,
 UNIQUE (offer_url, source_id)
 );

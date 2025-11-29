@@ -3,7 +3,9 @@ package pl.dealsniper.core.time;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DefaultTimeProvider implements TimeProvider {
 
     private final Clock clock;

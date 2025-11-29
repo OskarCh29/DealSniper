@@ -74,4 +74,20 @@ public class UserRepositoryImpl implements UserRepository {
                 .where(USERS.ID.eq(userId))
                 .execute();
     }
+
+    @Override
+    public User update(User user) {
+        UsersRecord record = dsl.update(USERS)
+                .set(USERS.EMAIL, user.getEmail())
+                .set(USERS.PASSWORD, user.getPassword())
+                .set(USERS.ACTIVE, user.getActive())
+                .set(USERS.DELETED_AT, user.getDeletedAt())
+                .where(USERS.ID.eq(user.getId()))
+                .returning()
+                .fetchOne();
+        if (record == null) {
+            throw new InsertFailedException("USER", user.getId());
+        }
+        return userMapper.toDomainModel(record);
+    }
 }

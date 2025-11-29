@@ -18,7 +18,7 @@ import pl.dealsniper.core.validation.source.RangeFieldDataTypes;
 public record SourceRequest(
         @NotNull UUID userId,
         @NotNull(message = "Car brand is missing") String brand,
-        @NotNull(message = "Car model is missing") String model,
+        String model,
         @Min(0) BigDecimal minPrice,
         BigDecimal maxPrice,
         @Min(1900) Integer minYear,

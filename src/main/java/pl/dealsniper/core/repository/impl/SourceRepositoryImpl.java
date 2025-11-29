@@ -1,6 +1,7 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository.impl;
 
+import static com.dealsniper.jooq.tables.ScheduledTasks.SCHEDULED_TASKS;
 import static com.dealsniper.jooq.tables.Sources.SOURCES;
 import static com.dealsniper.jooq.tables.Users.USERS;
 
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import pl.dealsniper.core.exception.InsertFailedException;
+import pl.dealsniper.core.exception.ScheduledTaskException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
 import pl.dealsniper.core.repository.SourceRepository;
@@ -57,6 +59,13 @@ public class SourceRepositoryImpl implements SourceRepository {
 
     @Override
     public int deleteById(Long id) {
+        boolean hasActiveTasks = dsl.fetchExists(dsl.selectFrom(SCHEDULED_TASKS)
+                .where(SCHEDULED_TASKS.SOURCE_ID.eq(id))
+                .and(SCHEDULED_TASKS.ACTIVE.eq(true)));
+        if (hasActiveTasks) {
+            throw new ScheduledTaskException("Cannot delete source with active tasks working");
+        }
+
         return dsl.deleteFrom(SOURCES).where(SOURCES.ID.eq(id)).execute();
     }
 

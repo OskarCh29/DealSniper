@@ -43,6 +43,9 @@ app:
     tasks-per-user: ${USER_TASKS:5}
     thread-max-pool-size: ${POOL_SIZE:20}
     scheduler-hour-interval: ${SCHEDULER_INTERVAL:8}
+    single-user:
+      enabled: true
+      email: ${SINGLE_USER_EMAIL:example@test.com}
 #JOOQ DEBUG LOGGING
 logging:
   level:

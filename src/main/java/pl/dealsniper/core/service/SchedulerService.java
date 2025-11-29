@@ -67,7 +67,7 @@ public class SchedulerService {
     }
 
     public void startScheduledTask(UUID userId, Long sourceId, String taskName) {
-        checkIfTaskAlreadyExists(userId, sourceId);
+        checkIfTaskAlreadyExists(userId, sourceId, taskName);
         checkIfUserCanStartNewTask(userId);
 
         String key = getTaskKey(userId, sourceId);
@@ -117,13 +117,16 @@ public class SchedulerService {
                 taskName,
                 taskScheduler,
                 (src) -> orchestrator.processSingleSource(src, taskName),
-                Duration.ofHours(schedulerInterval));
+                Duration.ofMinutes(schedulerInterval));
     }
 
     @Transactional(readOnly = true)
-    private void checkIfTaskAlreadyExists(UUID uuid, Long id) {
+    private void checkIfTaskAlreadyExists(UUID uuid, Long id, String taskName) {
         if (taskRepository.existsActiveTaskByUserAndSourceId(uuid, id)) {
             throw new ResourceUsedException("This task is already scheduled");
+        }
+        if (taskRepository.existsByNameAndUserId(taskName, uuid)) {
+            throw new ResourceUsedException("Task name is already taken");
         }
     }
 

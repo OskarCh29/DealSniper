@@ -13,7 +13,7 @@ import pl.dealsniper.core.service.SourceService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/scheduler")
+@RequestMapping("api/v1/scheduler")
 public class SchedulerController {
 
     private final SchedulerService schedulerService;

@@ -20,4 +20,8 @@ public interface TaskRepository {
     void activateTask(UUID userId, String taskName);
 
     boolean existsInactiveTaskByNameAndUserId(String taskName, UUID userId);
+
+    void deleteTask(UUID userId, Long sourceId);
+
+    boolean existsByNameAndUserId(String taskName, UUID userId);
 }

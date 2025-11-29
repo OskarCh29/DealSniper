@@ -40,12 +40,13 @@ public class ManagedTask {
             }
         };
         future = scheduler.scheduleAtFixedRate(runnable, startTime, interval);
-        log.info("Started task {}", key);
+        log.info("Started task {}", taskName);
     }
 
     public void stop() {
         if (future != null) {
             future.cancel(false);
+            future = null;
             log.info("Stopped task {}", key);
         }
     }
