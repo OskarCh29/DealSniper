@@ -52,8 +52,6 @@ public class SourceServiceTest {
     void saveUserSource_shouldSave_whenUserActive_andSourceNotExists() {
         User user = getMockUser();
         when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.of(user));
-        when(sourceRepository.findByUserIdAndFilterUrl(MOCK_UUID, MOCK_OFFER_URL))
-                .thenReturn(Optional.empty());
 
         Source mockSource = getMockSource();
         when(sourceRepository.save(any())).thenReturn(mockSource);
@@ -69,8 +67,6 @@ public class SourceServiceTest {
     void saveUserSource_shouldThrow_whenSourceAlreadyExists() {
         User user = getMockUser();
         when(userRepository.findById(MOCK_UUID)).thenReturn(Optional.of(user));
-        when(sourceRepository.findByUserIdAndFilterUrl(MOCK_UUID, MOCK_OFFER_URL))
-                .thenReturn(Optional.of(getMockSource()));
 
         assertThatThrownBy(() -> underTest.saveUserSource(MOCK_UUID, MOCK_OFFER_URL))
                 .isInstanceOf(ResourceUsedException.class)

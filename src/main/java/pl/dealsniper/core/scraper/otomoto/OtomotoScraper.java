@@ -37,7 +37,7 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
 
     @Override
     public CarDeal parseElementToDeal(Element element) {
-       return parser.parse(element);
+        return parser.parse(element);
     }
 
     private void fixFirstDealCurrencyDueToAdvertisement(List<CarDeal> carDeals) {
@@ -50,20 +50,20 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
         }
     }
 
-    private List<CarDeal> fetchAllPages(String platformUrl, Long sourceId){
+    private List<CarDeal> fetchAllPages(String platformUrl, Long sourceId) {
         List<CarDeal> carDeals = new ArrayList<>();
         int page = INITIAL_PAGE;
 
         while (carDeals.size() < ScraperUtil.MAX_OFFER_RESULT) {
-            String pageUrl = buildPageUrl(platformUrl,page);
+            String pageUrl = buildPageUrl(platformUrl, page);
             Elements listings = loadPageListings(pageUrl);
 
-            if(listings.isEmpty()){
+            if (listings.isEmpty()) {
                 break;
             }
-            addOffers(listings,carDeals,sourceId);
+            addOffers(listings, carDeals, sourceId);
 
-            if(listings.size() < OFFERS_PER_PAGE) {
+            if (listings.size() < OFFERS_PER_PAGE) {
                 break;
             }
             applyRandomDelay();
@@ -73,18 +73,21 @@ public class OtomotoScraper extends AbstractScraper<CarDeal> {
     }
 
     private Elements loadPageListings(String pageUrl) {
-        try{
+        try {
             return generateUrlRequest(pageUrl, OtomotoSelector.OFFER_SELECTOR);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new UrlTimeoutException("Request timeout exceeded");
         }
     }
 
     private void addOffers(Elements elements, List<CarDeal> carDeals, Long sourceId) {
         for (Element element : elements) {
-            if(Thread.currentThread().isInterrupted() || carDeals.size() >= ScraperUtil.MAX_OFFER_RESULT) {
-                log.info("Scrapping cancelled: {}",
-                        Thread.currentThread().isInterrupted() ? "Process interrupted" : "Reached maximum scraped offers");
+            if (Thread.currentThread().isInterrupted() || carDeals.size() >= ScraperUtil.MAX_OFFER_RESULT) {
+                log.info(
+                        "Scrapping cancelled: {}",
+                        Thread.currentThread().isInterrupted()
+                                ? "Process interrupted"
+                                : "Reached maximum scraped offers");
                 return;
             }
             CarDeal carDeal = parseElementToDeal(element);

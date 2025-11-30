@@ -10,8 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ScraperUtil {
 
-    private ScraperUtil() {
-    }
+    private ScraperUtil() {}
 
     public static final String LANGUAGE_HEADER = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
 
@@ -29,7 +28,6 @@ public class ScraperUtil {
             "https://www.yahoo.com/",
             "https://www.duckduckgo.com/");
 
-
     public static String getRandomUserAgent() {
         return USER_AGENTS.get(ThreadLocalRandom.current().nextInt(USER_AGENTS.size()));
     }
@@ -39,7 +37,8 @@ public class ScraperUtil {
     }
 
     private static List<String> loadUserAgents() {
-        try (InputStream inputStream = ScraperUtil.class.getClassLoader().getResourceAsStream("config/user_agents.txt")) {
+        try (InputStream inputStream =
+                ScraperUtil.class.getClassLoader().getResourceAsStream("config/user_agents.txt")) {
             if (inputStream == null) {
                 throw new IllegalStateException("user_agents.txt configuration file was not found");
             }
@@ -47,7 +46,8 @@ public class ScraperUtil {
                     .lines()
                     .filter(line -> !line.isBlank())
                     .toList();
-            ValidationUtil.throwIfTrue(agents.isEmpty(),
+            ValidationUtil.throwIfTrue(
+                    agents.isEmpty(),
                     () -> new IllegalStateException("user_agents.txt is empty - at least one user-agent is required"));
 
             return agents;

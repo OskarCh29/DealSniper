@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import pl.dealsniper.core.exception.InsertFailedException;
@@ -23,6 +24,50 @@ public class TaskRepositoryImpl implements TaskRepository {
     private final TaskMapper mapper;
 
     @Override
+    public Task save(Task task) {
+        ScheduledTasksRecord record = mapper.toJooqRecord(task);
+        try {
+            ScheduledTasksRecord savedRecord =
+                    dsl.insertInto(SCHEDULED_TASKS).set(record).returning().fetchOne();
+            return mapper.toDomainModel(savedRecord);
+
+        } catch (DataAccessException e) {
+            throw new InsertFailedException("TASK", task.getUserId() + ":" + task.getSourceId());
+        }
+    }
+
+    @Override
+    public Integer activateTask(UUID userId, Long sourceId) {
+        return updateActiveFlag(userId, sourceId, true);
+    }
+
+    @Override
+    public Integer deactivateTask(UUID userId, Long sourceId) {
+        return updateActiveFlag(userId, sourceId, false);
+    }
+
+    @Override
+    public Integer deleteTask(UUID userId, Long sourceId) {
+        return dsl.deleteFrom(SCHEDULED_TASKS)
+                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
+                .and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId))
+                .execute();
+    }
+
+    @Override
+    public Integer countUserTasks(UUID userId) {
+        return dsl.fetchCount(DSL.selectFrom(SCHEDULED_TASKS).where(SCHEDULED_TASKS.USER_ID.eq(userId)));
+    }
+
+    @Override
+    public boolean existsByConstraints(UUID userId, Long sourceId, String taskName) {
+        return dsl.fetchExists(dsl.selectOne()
+                .from(SCHEDULED_TASKS)
+                .where((SCHEDULED_TASKS.USER_ID.eq(userId).and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId)))
+                        .or((SCHEDULED_TASKS.USER_ID.eq(userId).and(SCHEDULED_TASKS.TASK_NAME.eq(taskName))))));
+    }
+
+    @Override
     public List<Task> findAllActiveTasks() {
         return dsl.selectFrom(SCHEDULED_TASKS)
                 .where(SCHEDULED_TASKS.ACTIVE.eq(true))
@@ -30,76 +75,10 @@ public class TaskRepositoryImpl implements TaskRepository {
                 .map(mapper::toDomainModel);
     }
 
-    @Override
-    public boolean existsActiveTaskByUserAndSourceId(UUID userId, Long sourceId) {
-        return dsl.fetchExists(dsl.selectFrom(SCHEDULED_TASKS)
-                .where(SCHEDULED_TASKS.ACTIVE.eq(true))
-                .and(SCHEDULED_TASKS.USER_ID.eq(userId))
-                .and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId)));
-    }
-
-    @Override
-    public boolean existsInactiveTaskByNameAndUserId(String taskName, UUID userId) {
-        return dsl.fetchExists(dsl.selectFrom(SCHEDULED_TASKS)
-                .where(SCHEDULED_TASKS.ACTIVE.eq(false))
-                .and(SCHEDULED_TASKS.USER_ID.eq(userId))
-                .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName)));
-    }
-
-    @Override
-    public Task save(Task task) {
-        ScheduledTasksRecord record = mapper.toJooqRecord(task);
-        ScheduledTasksRecord savedRecord = dsl.insertInto(SCHEDULED_TASKS)
-                .set(SCHEDULED_TASKS.TASK_NAME, record.getTaskName())
-                .set(SCHEDULED_TASKS.USER_ID, record.getUserId())
-                .set(SCHEDULED_TASKS.SOURCE_ID, record.getSourceId())
-                .set(SCHEDULED_TASKS.ACTIVE, true)
-                .onDuplicateKeyIgnore()
-                .returning()
-                .fetchOne();
-
-        if (savedRecord == null) {
-            throw new InsertFailedException("TASK", task.getTaskName() + ":" + task.getSourceId() + " already exists");
-        }
-
-        return mapper.toDomainModel(savedRecord);
-    }
-
-    @Override
-    public void deactivateTask(UUID userId, Long sourceId) {
-        dsl.update(SCHEDULED_TASKS)
-                .set(SCHEDULED_TASKS.ACTIVE, false)
-                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
-                .and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId))
+    private int updateActiveFlag(UUID userId, Long sourceId, boolean active) {
+        return dsl.update(SCHEDULED_TASKS)
+                .set(SCHEDULED_TASKS.ACTIVE, active)
+                .where(SCHEDULED_TASKS.USER_ID.eq(userId).and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId)))
                 .execute();
-    }
-
-    @Override
-    public Integer countUserStartedTasksByUserId(UUID userId) {
-        return dsl.fetchCount(DSL.selectFrom(SCHEDULED_TASKS).where(SCHEDULED_TASKS.USER_ID.eq(userId)));
-    }
-
-    @Override
-    public void activateTask(UUID userId, String taskName) {
-        dsl.update(SCHEDULED_TASKS)
-                .set(SCHEDULED_TASKS.ACTIVE, true)
-                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
-                .and(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
-                .execute();
-    }
-
-    @Override
-    public void deleteTask(UUID userId, Long sourceId) {
-        dsl.delete(SCHEDULED_TASKS)
-                .where(SCHEDULED_TASKS.USER_ID.eq(userId))
-                .and(SCHEDULED_TASKS.SOURCE_ID.eq(sourceId))
-                .execute();
-    }
-
-    @Override
-    public boolean existsByNameAndUserId(String taskName, UUID userId) {
-        return dsl.fetchExists(dsl.selectFrom(SCHEDULED_TASKS)
-                .where(SCHEDULED_TASKS.TASK_NAME.eq(taskName))
-                .and(SCHEDULED_TASKS.USER_ID.eq(userId)));
     }
 }

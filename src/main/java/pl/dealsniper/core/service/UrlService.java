@@ -16,8 +16,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pl.dealsniper.core.dto.request.source.SourceRequest;
 import pl.dealsniper.core.exception.UriValidationError;
 import pl.dealsniper.core.exception.UrlConnectException;
-import pl.dealsniper.core.util.ScraperUtil;
 import pl.dealsniper.core.scraper.otomoto.OtomotoSelector;
+import pl.dealsniper.core.util.ScraperUtil;
 
 @Slf4j
 @Service

@@ -11,5 +11,4 @@ public class UrlConnectException extends RuntimeException {
         super(message);
         this.reason = reason;
     }
-
 }

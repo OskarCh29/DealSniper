@@ -15,11 +15,10 @@ public class ApplicationConfiguration {
     private String baseUrl;
     private AppConfig config;
 
-
     @Getter
     @Setter
-    public static class AppConfig{
-        private int taskPerUser;
+    public static class AppConfig {
+        private int tasksPerUser;
         private int threadMaxPoolSize;
         private int schedulerHourInterval;
     }

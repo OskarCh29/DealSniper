@@ -1,14 +1,12 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.dto.response.SourceResponse;
 import pl.dealsniper.core.exception.RecordNotFoundException;
-import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.exception.UserInactiveException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
@@ -30,9 +28,6 @@ public class SourceService {
     public Source saveUserSource(UUID userId, String sourceUrl) {
         ensureUserActiveAndExists(userId);
         Source source = Source.builder().userId(userId).filteredUrl(sourceUrl).build();
-        if (getSourceByUserIdAndURL(userId, source.getFilteredUrl()).isPresent()) {
-            throw new ResourceUsedException("Provided source url already exists on your account");
-        }
         return sourceRepository.save(source);
     }
 
@@ -65,11 +60,6 @@ public class SourceService {
                 .findByIdAndUserId(id, userId)
                 .orElseThrow(
                         () -> new RecordNotFoundException("Source with provided Id does not belong to provided user"));
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Source> getSourceByUserIdAndURL(UUID userId, String filterUrl) {
-        return sourceRepository.findByUserIdAndFilterUrl(userId, filterUrl);
     }
 
     @Transactional(readOnly = true)

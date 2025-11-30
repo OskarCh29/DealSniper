@@ -27,7 +27,6 @@ public class UserService {
 
     @Transactional
     public User saveUser(UserRequest userRequest) {
-        ensureEmailAvailable(userRequest.email());
         User newUser = userMapper.toDomainModel(userRequest);
         UUID userId = UUID.randomUUID();
         return userRepository.save(newUser, userId);
@@ -43,18 +42,19 @@ public class UserService {
     @Transactional
     public void deleteUserAccount(UUID uuid) {
         User user = getUserById(uuid);
-        userRepository.deleteUserPersonalData(user.getId(),timeProvider.now());
+        userRepository.deleteUserPersonalData(user.getId(), timeProvider.timeNow());
     }
 
     @Transactional(readOnly = true)
     public void ensureEmailAvailable(String email) {
-        ValidationUtil.throwIfTrue(userRepository.existsByEmail(email),
-                () -> new ResourceUsedException("Email already in use"));
+        ValidationUtil.throwIfTrue(
+                userRepository.existsByEmail(email), () -> new ResourceUsedException("Email already in use"));
     }
 
     @Transactional(readOnly = true)
     public void ensureUserActive(UUID userId) {
-        ValidationUtil.throwIfFalse(userRepository.existsActiveById(userId),
+        ValidationUtil.throwIfFalse(
+                userRepository.existsActiveById(userId),
                 () -> new UserInactiveException("Provided user is not active"));
     }
 }

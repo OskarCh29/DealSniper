@@ -61,7 +61,7 @@ public class VerificationServiceTest {
         Verification mockVerification = getMockVerification();
         when(verificationRepository.getVerificationByCode(mockVerification.getVerificationCode()))
                 .thenReturn(Optional.of(mockVerification));
-        when(timeProvider.now()).thenReturn(mockVerification.getCreatedAt());
+        when(timeProvider.timeNow()).thenReturn(mockVerification.getCreatedAt());
 
         String result = underTest.getEmailByCode(request);
 
@@ -74,7 +74,7 @@ public class VerificationServiceTest {
         Verification mockVerification = getMockVerification();
         when(verificationRepository.getVerificationByCode(mockVerification.getVerificationCode()))
                 .thenReturn(Optional.of(mockVerification));
-        when(timeProvider.now()).thenReturn(MOCK_CREATED_AT.plusDays(1));
+        when(timeProvider.timeNow()).thenReturn(MOCK_CREATED_AT.plusDays(1));
 
         assertThatThrownBy(() -> underTest.getEmailByCode(request))
                 .isInstanceOf(VerificationCodeException.class)

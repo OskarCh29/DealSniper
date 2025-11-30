@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.dealsniper.core.dto.response.TaskResponse;
 import pl.dealsniper.core.service.SchedulerService;
 import pl.dealsniper.core.service.SourceService;
 
@@ -23,22 +24,23 @@ public class SchedulerController {
     public ResponseEntity<?> startScheduledTask(
             @RequestParam UUID userId, @RequestParam Long sourceId, @RequestParam String taskName) {
         sourceService.validateUserOwnsSource(userId, sourceId);
-        schedulerService.startScheduledTask(userId, sourceId, taskName);
-        return ResponseEntity.ok().build();
+        TaskResponse response = schedulerService.startNewScheduledTask(userId, sourceId, taskName);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/resume")
     public ResponseEntity<?> resumeExistingTask(
             @RequestParam UUID userId, @RequestParam Long sourceId, @RequestParam String taskName) {
         sourceService.validateUserOwnsSource(userId, sourceId);
-        schedulerService.resumeInactiveTask(userId, sourceId, taskName);
-        return ResponseEntity.ok().build();
+        TaskResponse response = schedulerService.resumeScheduledTask(userId, sourceId, taskName);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/stop")
-    public ResponseEntity<?> stopScheduledTask(@RequestParam UUID userId, @RequestParam Long sourceId) {
+    public ResponseEntity<?> stopScheduledTask(
+            @RequestParam UUID userId, @RequestParam Long sourceId, @RequestParam String taskName) {
         sourceService.validateUserOwnsSource(userId, sourceId);
-        schedulerService.stopScheduledTask(userId, sourceId);
-        return ResponseEntity.ok().build();
+        TaskResponse response = schedulerService.stopScheduledTask(userId, sourceId, taskName);
+        return ResponseEntity.ok().body(response);
     }
 }

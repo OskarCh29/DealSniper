@@ -17,7 +17,6 @@ import static pl.dealsniper.core.mock.MockFactory.getMockUserRequest;
 
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -91,7 +90,7 @@ class UserServiceTest {
                 .toDomainModel(any(UserRequest.class));
 
         when(userRepository.existsByEmail(testRequest.email())).thenReturn(false);
-        when(userRepository.save(any(User.class),any(UUID.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class), any(UUID.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User saved = underTest.saveUser(testRequest);
 

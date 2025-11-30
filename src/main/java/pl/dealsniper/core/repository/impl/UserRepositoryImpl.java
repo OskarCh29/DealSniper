@@ -10,8 +10,11 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import pl.dealsniper.core.exception.InsertFailedException;
+import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.mapper.UserMapper;
 import pl.dealsniper.core.model.User;
 import pl.dealsniper.core.repository.UserRepository;
@@ -29,18 +32,20 @@ public class UserRepositoryImpl implements UserRepository {
     public User save(User user, UUID userId) {
         UsersRecord record = userMapper.toJooqUserRecord(user);
         record.setId(userId);
-        UsersRecord savedRecord = dsl.insertInto(USERS)
-                .set(USERS.ID, record.getId())
-                .set(USERS.EMAIL, record.getEmail())
-                .set(USERS.PASSWORD, record.getPassword())
-                .returning()
-                .fetchOne();
+        try {
+            UsersRecord savedRecord = dsl.insertInto(USERS)
+                    .set(USERS.ID, record.getId())
+                    .set(USERS.EMAIL, record.getEmail())
+                    .set(USERS.PASSWORD, record.getPassword())
+                    .returning()
+                    .fetchOne();
 
-        if (savedRecord == null) {
+            return userMapper.toDomainModel(savedRecord);
+        } catch (DuplicateKeyException e) {
+            throw new ResourceUsedException("User with provided email already exists");
+        } catch (DataAccessException e) {
             throw new InsertFailedException("USER", user.getId());
         }
-
-        return userMapper.toDomainModel(savedRecord);
     }
 
     @Override
@@ -93,8 +98,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsActiveById(UUID userId) {
-        return dsl.fetchExists(dsl.selectFrom(USERS)
-                .where(USERS.ID.eq(userId))
-                .and(USERS.ACTIVE.isTrue()));
+        return dsl.fetchExists(dsl.selectFrom(USERS).where(USERS.ID.eq(userId)).and(USERS.ACTIVE.isTrue()));
     }
 }

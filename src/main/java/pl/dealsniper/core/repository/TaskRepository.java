@@ -7,21 +7,17 @@ import pl.dealsniper.core.model.Task;
 
 public interface TaskRepository {
 
-    List<Task> findAllActiveTasks();
-
-    Integer countUserStartedTasksByUserId(UUID userId);
-
-    boolean existsActiveTaskByUserAndSourceId(UUID userId, Long sourceId);
-
     Task save(Task task);
 
-    void deactivateTask(UUID userId, Long sourceId);
+    Integer activateTask(UUID userId, Long sourceId);
 
-    void activateTask(UUID userId, String taskName);
+    Integer deactivateTask(UUID userId, Long sourceId);
 
-    boolean existsInactiveTaskByNameAndUserId(String taskName, UUID userId);
+    Integer deleteTask(UUID userId, Long sourceId);
 
-    void deleteTask(UUID userId, Long sourceId);
+    Integer countUserTasks(UUID userId);
 
-    boolean existsByNameAndUserId(String taskName, UUID userId);
+    boolean existsByConstraints(UUID userId, Long sourceId, String taskName);
+
+    List<Task> findAllActiveTasks();
 }

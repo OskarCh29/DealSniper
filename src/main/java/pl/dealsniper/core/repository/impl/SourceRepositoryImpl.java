@@ -11,8 +11,11 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import pl.dealsniper.core.exception.InsertFailedException;
+import pl.dealsniper.core.exception.ResourceUsedException;
 import pl.dealsniper.core.exception.ScheduledTaskException;
 import pl.dealsniper.core.mapper.SourceMapper;
 import pl.dealsniper.core.model.Source;
@@ -29,27 +32,19 @@ public class SourceRepositoryImpl implements SourceRepository {
     @Override
     public Source save(Source source) {
         SourcesRecord record = mapper.toJooqSourceRecord(source);
+        try {
+            SourcesRecord inserted = dsl.insertInto(SOURCES)
+                    .set(SOURCES.FILTERED_URL, record.getFilteredUrl())
+                    .set(SOURCES.USER_ID, record.getUserId())
+                    .returning()
+                    .fetchOne();
 
-        SourcesRecord inserted = dsl.insertInto(SOURCES)
-                .set(SOURCES.FILTERED_URL, record.getFilteredUrl())
-                .set(SOURCES.USER_ID, record.getUserId())
-                .returning()
-                .fetchOne();
-
-        if (inserted == null) {
+            return mapper.toDomainSource(inserted);
+        } catch (DuplicateKeyException e) {
+            throw new ResourceUsedException("Provided source url already exists on your account");
+        } catch (DataAccessException e) {
             throw new InsertFailedException("SOURCE:" + source.getId(), "Source userId:" + source.getUserId());
         }
-
-        return mapper.toDomainSource(inserted);
-    }
-
-    @Override
-    public Optional<Source> findByUserIdAndFilterUrl(UUID id, String filterUrl) {
-        return dsl.selectFrom(SOURCES)
-                .where(SOURCES.USER_ID.eq(id))
-                .and(SOURCES.FILTERED_URL.eq(filterUrl))
-                .fetchOptional()
-                .map(mapper::toDomainSource);
     }
 
     @Override

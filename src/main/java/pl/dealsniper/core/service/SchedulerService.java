@@ -3,25 +3,21 @@ package pl.dealsniper.core.service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.configuration.ApplicationConfiguration;
-import pl.dealsniper.core.exception.ResourceUsedException;
+import pl.dealsniper.core.dto.response.TaskResponse;
+import pl.dealsniper.core.dto.response.TaskStatus;
 import pl.dealsniper.core.exception.ScheduledTaskException;
 import pl.dealsniper.core.model.Task;
-import pl.dealsniper.core.repository.TaskRepository;
 import pl.dealsniper.core.scheduler.ManagedTask;
+import pl.dealsniper.core.time.TimeProvider;
+import pl.dealsniper.core.util.ValidationUtil;
 
 @Slf4j
 @Service
@@ -29,155 +25,94 @@ import pl.dealsniper.core.scheduler.ManagedTask;
 public class SchedulerService {
 
     private static final int DELAY_MULTIPLAYER = 120;
-    private static final int STAGGER_STEP = 30;
 
-    private final TaskRepository taskRepository;
-    private final ThreadPoolTaskScheduler taskScheduler;
-    private final CarDealOrchestrator orchestrator;
+    private final TaskService taskService;
     private final ApplicationConfiguration properties;
-
+    private final CarDealOrchestrator carDealOrchestrator;
+    private final ThreadPoolTaskScheduler scheduler;
+    private final TimeProvider timeProvider;
     private final Map<String, ManagedTask> activeTasks = new ConcurrentHashMap<>();
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void rescheduleActiveTasks() {
-        List<Task> dbActiveTasks = taskRepository.findAllActiveTasks();
+    public TaskResponse startNewScheduledTask(UUID userId, Long sourceId, String taskName) {
+        taskService.validateUniqueTask(userId, sourceId, taskName);
+        Integer userTasks = taskService.countUserTasks(userId);
+        ValidationUtil.throwIfTrue(
+                userTasks == properties.getConfig().getTasksPerUser(),
+                () -> new ScheduledTaskException("Reached maximum tasks amount for provided user"));
 
-        for (int i = 0; i < dbActiveTasks.size(); i++) {
-            Task task = dbActiveTasks.get(i);
-            String key = task.getUserId() + ":" + task.getSourceId();
+        Task newTask = Task.builder()
+                .userId(userId)
+                .sourceId(sourceId)
+                .taskName(taskName)
+                .build();
+        taskService.saveNewTask(newTask);
 
-            if (activeTasks.containsKey(key) && activeTasks.get(key).isRunning()) {
-                log.info("Task {} already running, skipping restore", key);
-                continue;
-            }
-
-            ManagedTask managedTask = createManagedTask(task.getUserId(), task.getSourceId(), task.getTaskName());
-            long delaySeconds = (long) (Math.random() * DELAY_MULTIPLAYER) + (long) i * STAGGER_STEP;
-            Instant startTime = Instant.now().plusSeconds(delaySeconds);
-
-            managedTask.start(startTime);
-            activeTasks.put(key, managedTask);
-
-            log.info("Found active task: {}.Restoring...", key);
-        }
-    }
-
-    public void startScheduledTask(UUID userId, Long sourceId, String taskName) {
-        checkIfTaskAlreadyExists(userId, sourceId, taskName);
-        checkIfUserCanStartNewTask(userId);
-
-        String key = getTaskKey(userId, sourceId);
-
-        if (checkIfTaskAlreadyRunning(key)) {
-            log.info("Task already running for {}", taskName);
-            return;
-        }
+        log.info("Starting task: {} for user: {} ..........", taskName, userTasks);
         ManagedTask task = createManagedTask(userId, sourceId, taskName);
-        task.start(calculateInitialDelay());
-        activeTasks.put(key, task);
+        task.start(getInitialDelay());
+        activeTasks.put(generateKey(userId, sourceId), task);
 
-        saveNewTask(userId, sourceId, taskName);
+        return new TaskResponse(taskName, userId.toString(), TaskStatus.STARTED.getMessage());
     }
 
-    public void stopScheduledTask(UUID userId, Long sourceId) {
-        String key = getTaskKey(userId, sourceId);
+    public TaskResponse stopScheduledTask(UUID userId, Long sourceId, String taskName) {
+        String key = generateKey(userId, sourceId);
         ManagedTask task = activeTasks.get(key);
-        if (task != null) {
-            task.stop();
-            stopTask(userId, sourceId);
-        } else {
-            log.info("Task {} was not running", key);
-            throw new ScheduledTaskException("Requested task was not running");
-        }
+        ValidationUtil.throwIfTrue(
+                task == null, () -> new ScheduledTaskException("Task to be stopped was not running"));
+
+        taskService.deactivateTask(userId, sourceId);
+
+        log.info("Stopping task: {} for user: {}", taskName, userId);
+        task.stop();
+
+        activeTasks.remove(key);
+
+        return new TaskResponse(taskName, userId.toString(), TaskStatus.STOPPED.getMessage());
     }
 
-    public void resumeInactiveTask(UUID userId, Long sourceId, String taskName) {
-        String key = getTaskKey(userId, sourceId);
-        validateTaskResumable(userId, taskName, key);
-        checkIfUserCanStartNewTask(userId);
+    public TaskResponse resumeScheduledTask(UUID userId, Long sourceId, String taskName) {
+        String key = generateKey(userId, sourceId);
+
+        ValidationUtil.throwIfTrue(isRunning(key), () -> new ScheduledTaskException("Task was already running"));
+
+        taskService.activateTask(userId, sourceId);
 
         ManagedTask task = activeTasks.get(key);
+
+        log.info("Resuming task: {} for user: {}", taskName, userId);
         if (task == null) {
             task = createManagedTask(userId, sourceId, taskName);
             activeTasks.put(key, task);
         }
-        task.resume();
-        taskRepository.activateTask(userId, taskName);
+        task.start(getInitialDelay());
+
+        return new TaskResponse(taskName, userId.toString(), TaskStatus.RESUMED.getMessage());
     }
 
-    public boolean isTaskInactive(String taskName, UUID userId) {
-        return taskRepository.existsInactiveTaskByNameAndUserId(taskName, userId);
-    }
-
-    private ManagedTask createManagedTask(UUID userId, Long sourceId, String taskName) {
-        String key = userId + ":" + sourceId;
-        return new ManagedTask(
-                key,
-                sourceId,
-                taskName,
-                taskScheduler,
-                (src) -> orchestrator.processSingleSource(src, taskName),
-                Duration.ofMinutes(properties.getConfig().getSchedulerHourInterval()));
-    }
-
-    @Transactional(readOnly = true)
-    private void checkIfTaskAlreadyExists(UUID uuid, Long id, String taskName) {
-        if (taskRepository.existsActiveTaskByUserAndSourceId(uuid, id)) {
-            throw new ResourceUsedException("This task is already scheduled");
-        }
-        if (taskRepository.existsByNameAndUserId(taskName, uuid)) {
-            throw new ResourceUsedException("Task name is already taken");
-        }
-    }
-
-    @Transactional(readOnly = true)
-    private void checkIfUserCanStartNewTask(UUID userId) {
-        if (taskRepository.countUserStartedTasksByUserId(userId) == properties.getConfig().getTaskPerUser()) {
-            throw new ResourceUsedException("You reached maximum number of started tasks");
-        }
-    }
-
-    @Transactional
-    private void saveNewTask(UUID userId, Long sourceId, String taskName) {
-        Task newTask = Task.builder()
-                .taskName(taskName)
-                .userId(userId)
-                .sourceId(sourceId)
-                .build();
-        taskRepository.save(newTask);
-    }
-
-    @Transactional
-    private void stopTask(UUID userId, Long sourceId) {
-        taskRepository.deactivateTask(userId, sourceId);
-    }
-
-    private Instant calculateInitialDelay() {
-        long randomDelay = (long) (Math.random() * DELAY_MULTIPLAYER);
-        return Instant.now().plusSeconds(randomDelay);
-    }
-
-    private String getTaskKey(UUID userId, Long sourceId) {
-        return userId + ":" + sourceId;
-    }
-
-    private void validateTaskResumable(UUID userId, String taskName, String key) {
-        validate(
-                !checkIfTaskAlreadyRunning(key),
-                () -> new ScheduledTaskException("Task '" + taskName + "' is already running and cannot be resumed"));
-
-        validate(
-                taskRepository.existsInactiveTaskByNameAndUserId(taskName, userId),
-                () -> new ScheduledTaskException("Task '" + taskName + "' does not exist and cannot be resumed"));
-    }
-
-    private boolean checkIfTaskAlreadyRunning(String key) {
+    private boolean isRunning(String key) {
         return activeTasks.containsKey(key) && activeTasks.get(key).isRunning();
     }
 
-    private void validate(boolean condition, Supplier<? extends RuntimeException> exceptionSupplier) {
-        if (!condition) {
-            throw exceptionSupplier.get();
-        }
+    private ManagedTask createManagedTask(UUID userId, Long sourceId, String taskName) {
+        return new ManagedTask(
+                generateKey(userId, sourceId),
+                sourceId,
+                taskName,
+                scheduler,
+                src -> carDealOrchestrator.processSingleSource(src, taskName),
+                Duration.ofHours(properties.getConfig().getSchedulerHourInterval()));
+    }
+
+    private String generateKey(UUID userId, Long sourceId) {
+        return userId + ":" + sourceId;
+    }
+
+    private Instant getInitialDelay() {
+        return timeProvider.now().plusSeconds(randomDelay());
+    }
+
+    private long randomDelay() {
+        return (long) (Math.random() * DELAY_MULTIPLAYER);
     }
 }

@@ -1,10 +1,9 @@
 /* (C) 2025 */
 package pl.dealsniper.core.scraper.otomoto;
 
-
 public final class OtomotoSelector {
 
-    private OtomotoSelector(){}
+    private OtomotoSelector() {}
 
     public static final String OFFER_SELECTOR = "article[data-id]";
 

@@ -2,6 +2,7 @@
 package pl.dealsniper.core.time;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,12 @@ public class DefaultTimeProvider implements TimeProvider {
     }
 
     @Override
-    public LocalDateTime now() {
+    public LocalDateTime timeNow() {
         return LocalDateTime.now(clock);
+    }
+
+    @Override
+    public Instant now() {
+        return Instant.now(clock);
     }
 }

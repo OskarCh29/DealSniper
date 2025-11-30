@@ -51,7 +51,7 @@ public class VerificationService {
                 .getVerificationByCode(code)
                 .orElseThrow(() -> new VerificationCodeException("Invalid verification code"));
 
-        LocalDateTime expiryTime = timeProvider.now().minus(VALIDITY);
+        LocalDateTime expiryTime = timeProvider.timeNow().minus(VALIDITY);
 
         if (expiryTime.isAfter(verification.getCreatedAt())) {
             throw new VerificationCodeException("Verification code expired");
@@ -60,8 +60,8 @@ public class VerificationService {
     }
 
     @Transactional
-    public void deactivateExpiredCodes(){
-        verificationRepository.deactivateExpiredCodes(timeProvider.now().minus(VALIDITY));
+    public void deactivateExpiredCodes() {
+        verificationRepository.deactivateExpiredCodes(timeProvider.timeNow().minus(VALIDITY));
     }
 
     private String generateVerificationCode() {

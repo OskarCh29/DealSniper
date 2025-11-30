@@ -3,6 +3,8 @@ package pl.dealsniper.core.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -12,9 +14,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import pl.dealsniper.core.dto.response.CarDealResponse;
 import pl.dealsniper.core.model.CarDeal;
-
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
