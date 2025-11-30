@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
-import pl.dealsniper.core.exception.UrlTimeoutException;
+import pl.dealsniper.core.exception.url.UrlTimeoutException;
 import pl.dealsniper.core.model.CarDeal;
 import pl.dealsniper.core.scraper.AbstractScraper;
 import pl.dealsniper.core.util.ScraperUtil;

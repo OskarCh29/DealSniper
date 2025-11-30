@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import pl.dealsniper.core.configuration.ApplicationConfiguration;
 import pl.dealsniper.core.dto.response.TaskResponse;
 import pl.dealsniper.core.dto.response.TaskStatus;
-import pl.dealsniper.core.exception.ScheduledTaskException;
+import pl.dealsniper.core.exception.scheduler.ScheduledTaskException;
 import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.scheduler.ManagedTask;
 import pl.dealsniper.core.time.TimeProvider;
@@ -47,7 +47,7 @@ public class SchedulerService {
                 .build();
         taskService.saveNewTask(newTask);
 
-        log.info("Starting task: {} for user: {} ..........", taskName, userTasks);
+        log.info("Starting task: {} for user: {}", taskName, userTasks);
         ManagedTask task = createManagedTask(userId, sourceId, taskName);
         task.start(getInitialDelay());
         activeTasks.put(generateKey(userId, sourceId), task);

@@ -1,5 +1,5 @@
 /* (C) 2025 */
-package pl.dealsniper.core.exception;
+package pl.dealsniper.core.exception.url;
 
 import lombok.Getter;
 

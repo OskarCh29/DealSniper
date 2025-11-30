@@ -13,6 +13,13 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.dealsniper.core.dto.response.ErrorResponse;
+import pl.dealsniper.core.exception.db.InsertFailedException;
+import pl.dealsniper.core.exception.db.RecordNotFoundException;
+import pl.dealsniper.core.exception.db.ResourceUsedException;
+import pl.dealsniper.core.exception.scheduler.ScheduledTaskException;
+import pl.dealsniper.core.exception.url.UrlConnectException;
+import pl.dealsniper.core.exception.user.UserInactiveException;
+import pl.dealsniper.core.exception.verification.VerificationCodeException;
 
 @Slf4j
 @ControllerAdvice
@@ -91,7 +98,7 @@ public class GlobalExceptionHandler {
             HttpStatus status, String message, HttpServletRequest request, Consumer<String> logger) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(status.value())
-                .statusMessage(status.getReasonPhrase())
+                .code(status.getReasonPhrase())
                 .message(message)
                 .path(request.getRequestURL().toString())
                 .timeStamp(LocalDateTime.now())

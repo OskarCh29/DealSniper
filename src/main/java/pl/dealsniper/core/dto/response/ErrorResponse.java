@@ -5,4 +5,4 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
-public record ErrorResponse(int status, String statusMessage, String message, String path, LocalDateTime timeStamp) {}
+public record ErrorResponse(int status, String code, String message, String path, LocalDateTime timeStamp) {}

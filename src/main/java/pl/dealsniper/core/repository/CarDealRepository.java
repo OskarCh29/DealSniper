@@ -15,10 +15,6 @@ public interface CarDealRepository<T extends BaseDeal> {
 
     void deleteInactiveOffers();
 
-    boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId);
-
-    PageResponse<T> findAllByUserId(UUID userId, int page, int size);
-
     PageResponse<T> findAllByUserIdAndFilter(
             UUID userId, CarDealFilterRequest filter, boolean currentActiveRecords, int page, int size);
 }

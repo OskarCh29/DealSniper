@@ -14,5 +14,4 @@ public enum TaskStatus {
     TaskStatus(String message) {
         this.message = message;
     }
-
 }

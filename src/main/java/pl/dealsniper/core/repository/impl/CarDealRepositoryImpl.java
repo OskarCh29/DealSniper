@@ -31,16 +31,8 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
 
     @Override
     public void save(CarDeal deal) {
-        dsl.insertInto(CAR_DEALS)
-                .set(CAR_DEALS.TITLE, deal.getTitle())
-                .set(CAR_DEALS.PRICE, deal.getPrice())
-                .set(CAR_DEALS.CURRENCY, deal.getCurrency())
-                .set(CAR_DEALS.OFFER_URL, deal.getOfferUrl())
-                .set(CAR_DEALS.MILEAGE, deal.getMileage())
-                .set(CAR_DEALS.LOCATION, deal.getLocation())
-                .set(CAR_DEALS.YEAR, deal.getYear())
-                .onDuplicateKeyIgnore()
-                .execute();
+        CarDealsRecord record = mapper.toJooqCarDealRecord(deal);
+        dsl.insertInto(CAR_DEALS).set(record).onDuplicateKeyIgnore().execute();
     }
 
     @Override
@@ -66,13 +58,13 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                         CAR_DEALS.ACTIVE,
                         CAR_DEALS.SOURCE_ID)
                 .select(dsl.select(
-                                DSL.min(CAR_DEALS_TMP.TITLE),
-                                DSL.min(CAR_DEALS_TMP.PRICE),
-                                DSL.min(CAR_DEALS_TMP.CURRENCY),
+                                CAR_DEALS_TMP.TITLE,
+                                CAR_DEALS_TMP.PRICE,
+                                CAR_DEALS_TMP.CURRENCY,
                                 CAR_DEALS_TMP.OFFER_URL,
-                                DSL.min(CAR_DEALS_TMP.LOCATION),
-                                DSL.min(CAR_DEALS_TMP.MILEAGE),
-                                DSL.min(CAR_DEALS_TMP.YEAR),
+                                CAR_DEALS_TMP.LOCATION,
+                                CAR_DEALS_TMP.MILEAGE,
+                                CAR_DEALS_TMP.YEAR,
                                 DSL.inline(true),
                                 CAR_DEALS_TMP.SOURCE_ID)
                         .from(CAR_DEALS_TMP)
@@ -99,44 +91,6 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                         .where(CAR_DEALS_TMP.OFFER_URL.eq(CAR_DEALS.OFFER_URL))
                         .and(CAR_DEALS_TMP.SOURCE_ID.eq(CAR_DEALS.SOURCE_ID)))
                 .execute();
-    }
-
-    @Override
-    public boolean existsByOfferUrlAndSourceId(String offerUrl, Long sourceId) {
-        return dsl.fetchExists(dsl.selectFrom(CAR_DEALS)
-                .where(CAR_DEALS.OFFER_URL.eq(offerUrl))
-                .and(CAR_DEALS.SOURCE_ID.eq(sourceId)));
-    }
-
-    @Override
-    public PageResponse<CarDeal> findAllByUserId(UUID userId, int page, int size) {
-        int offset = page * size;
-
-        List<CarDeal> offers = dsl
-                .select(
-                        CAR_DEALS.TITLE,
-                        CAR_DEALS.PRICE,
-                        CAR_DEALS.CURRENCY,
-                        CAR_DEALS.LOCATION,
-                        CAR_DEALS.MILEAGE,
-                        CAR_DEALS.YEAR,
-                        CAR_DEALS.OFFER_URL)
-                .from(CAR_DEALS)
-                .join(SOURCES)
-                .on(CAR_DEALS.SOURCE_ID.eq(SOURCES.ID))
-                .where(SOURCES.USER_ID.eq(userId))
-                .and(CAR_DEALS.ACTIVE.isTrue())
-                .limit(size)
-                .offset(offset)
-                .fetchInto(CarDealsRecord.class)
-                .stream()
-                .map(mapper::toDomainCarDeal)
-                .toList();
-        return PageResponse.<CarDeal>builder()
-                .content(offers)
-                .page(page)
-                .size(size)
-                .build();
     }
 
     @Override

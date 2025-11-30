@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.dealsniper.core.configuration.ApplicationConfiguration;
 import pl.dealsniper.core.dto.request.user.VerificationRequest;
-import pl.dealsniper.core.exception.VerificationCodeException;
+import pl.dealsniper.core.exception.verification.VerificationCodeException;
 import pl.dealsniper.core.model.Verification;
 import pl.dealsniper.core.repository.VerificationRepository;
 import pl.dealsniper.core.time.TimeProvider;

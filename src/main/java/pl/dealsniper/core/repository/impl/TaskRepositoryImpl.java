@@ -11,7 +11,7 @@ import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
-import pl.dealsniper.core.exception.InsertFailedException;
+import pl.dealsniper.core.exception.db.InsertFailedException;
 import pl.dealsniper.core.mapper.TaskMapper;
 import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.repository.TaskRepository;

@@ -17,8 +17,6 @@ import pl.dealsniper.core.repository.VerificationRepository;
 @RequiredArgsConstructor
 public class VerificationRepositoryImpl implements VerificationRepository {
 
-    private static final LocalDateTime EXPIRY_TIME = LocalDateTime.now().minusHours(1);
-
     private final DSLContext dsl;
     private final VerificationMapper mapper;
 
