@@ -1,7 +1,6 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,10 +62,5 @@ public class TaskService {
         ValidationUtil.throwIfTrue(
                 taskRepository.existsByConstraints(userId, sourceId, taskName),
                 () -> new ResourceUsedException("Task with same source or name already exists"));
-    }
-
-    @Transactional(readOnly = true)
-    public List<Task> fetchActiveTasks() {
-        return taskRepository.findAllActiveTasks();
     }
 }

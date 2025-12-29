@@ -1,8 +1,9 @@
 /* (C) 2025 */
 package pl.dealsniper.core.repository;
 
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import pl.dealsniper.core.model.Task;
 
 public interface TaskRepository {
@@ -19,5 +20,5 @@ public interface TaskRepository {
 
     boolean existsByConstraints(UUID userId, Long sourceId, String taskName);
 
-    List<Task> findAllActiveTasks();
+    Page<Task> findAllActiveTasks(Pageable pageable);
 }

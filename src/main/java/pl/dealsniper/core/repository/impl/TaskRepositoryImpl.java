@@ -5,11 +5,15 @@ import static com.dealsniper.jooq.tables.ScheduledTasks.SCHEDULED_TASKS;
 
 import com.dealsniper.jooq.tables.records.ScheduledTasksRecord;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import pl.dealsniper.core.exception.db.InsertFailedException;
 import pl.dealsniper.core.mapper.TaskMapper;
@@ -68,11 +72,21 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<Task> findAllActiveTasks() {
-        return dsl.selectFrom(SCHEDULED_TASKS)
+    public Page<Task> findAllActiveTasks(Pageable pageable) {
+        List<Task> tasks = dsl.selectFrom(SCHEDULED_TASKS)
                 .where(SCHEDULED_TASKS.ACTIVE.eq(true))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch()
                 .map(mapper::toDomainModel);
+
+        long totalActive = Optional.ofNullable(dsl.selectCount()
+                        .from(SCHEDULED_TASKS)
+                        .where(SCHEDULED_TASKS.ACTIVE.eq(true))
+                        .fetchOne(0, Long.class))
+                .orElse(0L);
+
+        return new PageImpl<>(tasks, pageable, totalActive);
     }
 
     private int updateActiveFlag(UUID userId, Long sourceId, boolean active) {

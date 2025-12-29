@@ -12,6 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import pl.dealsniper.core.configuration.ApplicationConfiguration;
 import pl.dealsniper.core.dto.request.task.TaskChangeStateRequest;
+import pl.dealsniper.core.dto.request.task.TaskCreateRequest;
 import pl.dealsniper.core.dto.response.task.TaskResponse;
 import pl.dealsniper.core.dto.response.task.TaskStatus;
 import pl.dealsniper.core.exception.scheduler.ScheduledTaskException;
@@ -33,21 +34,22 @@ public class SchedulerService {
     private final TimeProvider timeProvider;
     private final Map<String, ManagedTask> activeTasks = new ConcurrentHashMap<>();
 
-    public TaskResponse startNewScheduledTask(UUID userId, Long sourceId, String taskName) {
-        taskService.validateUniqueTask(userId, sourceId, taskName);
-        Integer userTasks = taskService.countUserTasks(userId);
+    public TaskResponse startNewScheduledTask(TaskCreateRequest taskRequest) {
+        taskService.validateUniqueTask(taskRequest.userId(), taskRequest.sourceId(), taskRequest.taskName());
+        Integer userTasks = taskService.countUserTasks(taskRequest.userId());
         ValidationUtil.throwIfTrue(
                 userTasks == properties.getConfig().getTasksPerUser(),
                 () -> new ScheduledTaskException("Reached maximum tasks amount for provided user"));
 
-        taskService.saveNewTask(userId, sourceId, taskName);
+        taskService.saveNewTask(taskRequest.userId(), taskRequest.sourceId(), taskRequest.taskName());
 
-        log.info("Starting task: {} for user: {}", taskName, userId);
-        ManagedTask task = createManagedTask(userId, sourceId, taskName);
+        log.info("Starting task: {} for user: {}", taskRequest.taskName(), taskRequest.userId());
+        ManagedTask task = createManagedTask(taskRequest.userId(), taskRequest.sourceId(), taskRequest.taskName());
         task.start(getInitialDelay());
-        activeTasks.put(generateKey(userId, sourceId), task);
+        activeTasks.put(generateKey(taskRequest.userId(), taskRequest.sourceId()), task);
 
-        return new TaskResponse(taskName, userId.toString(), TaskStatus.STARTED.getMessage());
+        return new TaskResponse(
+                taskRequest.taskName(), taskRequest.userId().toString(), TaskStatus.STARTED.getMessage());
     }
 
     public TaskResponse changeTaskState(TaskChangeStateRequest stateRequest) {
@@ -58,6 +60,18 @@ public class SchedulerService {
             case RUN -> resume(stateRequest.userId(), stateRequest.sourceId(), stateRequest.taskName(), key, task);
             case STOP -> stop(stateRequest.userId(), stateRequest.sourceId(), stateRequest.taskName(), key, task);
         };
+    }
+
+    public void deleteTask(UUID userId, Long sourceId) {
+        String key = generateKey(userId, sourceId);
+        ManagedTask task = activeTasks.get(key);
+        if (task != null && task.isRunning()) {
+            log.info("Stopping running task before deleting for user: {}", userId);
+            task.stop();
+        }
+        activeTasks.remove(key);
+
+        taskService.deleteTask(userId, sourceId);
     }
 
     private TaskResponse resume(UUID userId, Long sourceId, String taskName, String key, ManagedTask task) {
