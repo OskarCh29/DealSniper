@@ -11,10 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import pl.dealsniper.core.configuration.ApplicationConfiguration;
-import pl.dealsniper.core.dto.response.TaskResponse;
-import pl.dealsniper.core.dto.response.TaskStatus;
+import pl.dealsniper.core.dto.request.task.TaskChangeStateRequest;
+import pl.dealsniper.core.dto.response.task.TaskResponse;
+import pl.dealsniper.core.dto.response.task.TaskStatus;
 import pl.dealsniper.core.exception.scheduler.ScheduledTaskException;
-import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.scheduler.ManagedTask;
 import pl.dealsniper.core.time.TimeProvider;
 import pl.dealsniper.core.util.ValidationUtil;
@@ -40,14 +40,9 @@ public class SchedulerService {
                 userTasks == properties.getConfig().getTasksPerUser(),
                 () -> new ScheduledTaskException("Reached maximum tasks amount for provided user"));
 
-        Task newTask = Task.builder()
-                .userId(userId)
-                .sourceId(sourceId)
-                .taskName(taskName)
-                .build();
-        taskService.saveNewTask(newTask);
+        taskService.saveNewTask(userId, sourceId, taskName);
 
-        log.info("Starting task: {} for user: {}", taskName, userTasks);
+        log.info("Starting task: {} for user: {}", taskName, userId);
         ManagedTask task = createManagedTask(userId, sourceId, taskName);
         task.start(getInitialDelay());
         activeTasks.put(generateKey(userId, sourceId), task);
@@ -55,30 +50,19 @@ public class SchedulerService {
         return new TaskResponse(taskName, userId.toString(), TaskStatus.STARTED.getMessage());
     }
 
-    public TaskResponse stopScheduledTask(UUID userId, Long sourceId, String taskName) {
-        String key = generateKey(userId, sourceId);
+    public TaskResponse changeTaskState(TaskChangeStateRequest stateRequest) {
+        String key = generateKey(stateRequest.userId(), stateRequest.sourceId());
         ManagedTask task = activeTasks.get(key);
-        ValidationUtil.throwIfTrue(
-                task == null, () -> new ScheduledTaskException("Task to be stopped was not running"));
 
-        taskService.deactivateTask(userId, sourceId);
-
-        log.info("Stopping task: {} for user: {}", taskName, userId);
-        task.stop();
-
-        activeTasks.remove(key);
-
-        return new TaskResponse(taskName, userId.toString(), TaskStatus.STOPPED.getMessage());
+        return switch (stateRequest.state()) {
+            case RUN -> resume(stateRequest.userId(), stateRequest.sourceId(), stateRequest.taskName(), key, task);
+            case STOP -> stop(stateRequest.userId(), stateRequest.sourceId(), stateRequest.taskName(), key, task);
+        };
     }
 
-    public TaskResponse resumeScheduledTask(UUID userId, Long sourceId, String taskName) {
-        String key = generateKey(userId, sourceId);
-
-        ValidationUtil.throwIfTrue(isRunning(key), () -> new ScheduledTaskException("Task was already running"));
-
+    private TaskResponse resume(UUID userId, Long sourceId, String taskName, String key, ManagedTask task) {
         taskService.activateTask(userId, sourceId);
-
-        ManagedTask task = activeTasks.get(key);
+        ValidationUtil.throwIfTrue(isRunning(key), () -> new ScheduledTaskException("Task was already running"));
 
         log.info("Resuming task: {} for user: {}", taskName, userId);
         if (task == null) {
@@ -88,6 +72,17 @@ public class SchedulerService {
         task.start(getInitialDelay());
 
         return new TaskResponse(taskName, userId.toString(), TaskStatus.RESUMED.getMessage());
+    }
+
+    private TaskResponse stop(UUID userId, Long sourceId, String taskName, String key, ManagedTask task) {
+        taskService.deactivateTask(userId, sourceId);
+        ValidationUtil.throwIfTrue(
+                task == null, () -> new ScheduledTaskException("Task to be stopped was not running"));
+        log.info("Stopping task: {} for user: {}", taskName, userId);
+        task.stop();
+        activeTasks.remove(key);
+
+        return new TaskResponse(taskName, userId.toString(), TaskStatus.STOPPED.getMessage());
     }
 
     private boolean isRunning(String key) {

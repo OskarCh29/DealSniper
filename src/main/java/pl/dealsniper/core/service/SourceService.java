@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dealsniper.core.dto.response.SourceResponse;
+import pl.dealsniper.core.dto.response.source.SourceResponse;
 import pl.dealsniper.core.exception.db.RecordNotFoundException;
 import pl.dealsniper.core.exception.user.UserInactiveException;
 import pl.dealsniper.core.mapper.SourceMapper;

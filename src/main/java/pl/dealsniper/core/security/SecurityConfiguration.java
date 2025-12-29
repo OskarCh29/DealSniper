@@ -20,7 +20,7 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("APPLICATION IS RUNNING IN - SECURITY MODE");
+        log.info("APPLICATION IS RUN IN - SECURITY MODE");
 
         http.csrf(Customizer.withDefaults()).authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/sources/**")
                 .authenticated()

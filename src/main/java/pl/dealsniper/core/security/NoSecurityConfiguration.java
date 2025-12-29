@@ -16,7 +16,7 @@ public class NoSecurityConfiguration {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.warn("APPLICATION IS RUNNING IN - NO SECURITY MODE");
+        log.warn("APPLICATION IS RUN IN - NO SECURITY MODE");
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 

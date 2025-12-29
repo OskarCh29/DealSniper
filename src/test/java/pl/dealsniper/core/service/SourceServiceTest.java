@@ -23,7 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.dealsniper.core.dto.response.SourceResponse;
+import pl.dealsniper.core.dto.response.source.SourceResponse;
 import pl.dealsniper.core.exception.db.RecordNotFoundException;
 import pl.dealsniper.core.exception.db.ResourceUsedException;
 import pl.dealsniper.core.exception.user.UserInactiveException;

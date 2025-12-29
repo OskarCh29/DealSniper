@@ -6,7 +6,7 @@ import com.dealsniper.jooq.tables.records.CarDealsTmpRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import pl.dealsniper.core.dto.response.CarDealResponse;
+import pl.dealsniper.core.dto.response.cardeal.CarDealResponse;
 import pl.dealsniper.core.model.CarDeal;
 
 @Mapper(componentModel = "spring")

@@ -67,8 +67,7 @@ public class CarDealRepositoryImpl implements CarDealRepository<CarDeal> {
                                 CAR_DEALS_TMP.YEAR,
                                 DSL.inline(true),
                                 CAR_DEALS_TMP.SOURCE_ID)
-                        .from(CAR_DEALS_TMP)
-                        .groupBy(CAR_DEALS_TMP.OFFER_URL, CAR_DEALS_TMP.SOURCE_ID))
+                        .from(CAR_DEALS_TMP))
                 .onConflict(CAR_DEALS.OFFER_URL, CAR_DEALS.SOURCE_ID)
                 .doUpdate()
                 .set(CAR_DEALS.TITLE, DSL.excluded(CAR_DEALS.TITLE))

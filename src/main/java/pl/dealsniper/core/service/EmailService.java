@@ -12,7 +12,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import pl.dealsniper.core.dto.response.CarDealResponse;
+import pl.dealsniper.core.dto.response.cardeal.CarDealResponse;
 import pl.dealsniper.core.model.CarDeal;
 
 @Slf4j

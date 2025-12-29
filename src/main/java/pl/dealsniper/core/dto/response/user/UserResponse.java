@@ -1,5 +1,5 @@
 /* (C) 2025 */
-package pl.dealsniper.core.dto.response;
+package pl.dealsniper.core.dto.response.user;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

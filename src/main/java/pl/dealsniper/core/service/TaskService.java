@@ -20,8 +20,13 @@ public class TaskService {
     private static final int NO_ROWS_UPDATED = 0;
 
     @Transactional
-    public Task saveNewTask(Task task) {
-        return taskRepository.save(task);
+    public Task saveNewTask(UUID userId, Long sourceId, String taskName) {
+        Task newTask = Task.builder()
+                .userId(userId)
+                .sourceId(sourceId)
+                .taskName(taskName)
+                .build();
+        return taskRepository.save(newTask);
     }
 
     @Transactional
