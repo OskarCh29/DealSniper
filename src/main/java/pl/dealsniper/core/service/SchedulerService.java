@@ -1,11 +1,6 @@
 /* (C) 2025 */
 package pl.dealsniper.core.service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -16,9 +11,16 @@ import pl.dealsniper.core.dto.request.task.TaskCreateRequest;
 import pl.dealsniper.core.dto.response.task.TaskResponse;
 import pl.dealsniper.core.dto.response.task.TaskStatus;
 import pl.dealsniper.core.exception.scheduler.ScheduledTaskException;
+import pl.dealsniper.core.model.Task;
 import pl.dealsniper.core.scheduler.ManagedTask;
 import pl.dealsniper.core.time.TimeProvider;
 import pl.dealsniper.core.util.ValidationUtil;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -72,6 +74,20 @@ public class SchedulerService {
         activeTasks.remove(key);
 
         taskService.deleteTask(userId, sourceId);
+    }
+
+    public void recoverTask(Task task) {
+        String key = generateKey(task.getUserId(), task.getSourceId());
+
+        if (activeTasks.containsKey(key) && activeTasks.get(key).isRunning()) {
+            log.warn("Task {} already running, skipping recovery", task.getTaskName());
+            return;
+        }
+        log.info("Recovering task: {} for user: {}", task.getTaskName(), task.getUserId());
+
+        ManagedTask managedTask = createManagedTask(task.getUserId(),task.getSourceId(), task.getTaskName());
+        managedTask.start(getInitialDelay());
+        activeTasks.put(key, managedTask);
     }
 
     private TaskResponse resume(UUID userId, Long sourceId, String taskName, String key, ManagedTask task) {

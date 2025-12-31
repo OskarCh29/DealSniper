@@ -1,7 +1,5 @@
 #Spring/Flyway
 spring:
-  main:
-    banner-mode: false
   flyway:
     enabled: true
     validate-on-migrate: true

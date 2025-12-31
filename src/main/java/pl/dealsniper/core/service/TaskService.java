@@ -3,6 +3,8 @@ package pl.dealsniper.core.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dealsniper.core.exception.db.RecordNotFoundException;
@@ -62,5 +64,10 @@ public class TaskService {
         ValidationUtil.throwIfTrue(
                 taskRepository.existsByConstraints(userId, sourceId, taskName),
                 () -> new ResourceUsedException("Task with same source or name already exists"));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Task> getActiveTaskPage(Pageable page){
+        return taskRepository.findAllActiveTasks(page);
     }
 }
